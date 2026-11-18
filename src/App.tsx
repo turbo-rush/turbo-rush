@@ -69,10 +69,39 @@ this.player = this.add.container(
     this.nitroText = this.add.text(width - 16, 14, "NITRO 100%", { fontFamily: "Arial", fontSize: "14px", color: "#70e7ff" }).setOrigin(1, 0);
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => this.moveLane(p.x < width / 2 ? -1 : 1));
-    this.input.keyboard?.on("keydown-LEFT", () => this.moveLane(-1));
-    this.input.keyboard?.on("keydown-RIGHT", () => this.moveLane(1));
-    this.input.keyboard?.on("keydown-SPACE", () => this.useNitro());
-    this.input.on("pointerup", () => {});
+    // Управление клавиатурой
+this.input.keyboard?.on("keydown-LEFT", () => this.moveLane(-1));
+this.input.keyboard?.on("keydown-RIGHT", () => this.moveLane(1));
+this.input.keyboard?.on("keydown-SPACE", () => this.useNitro());
+
+// Управление через кнопки интерфейса
+const controlHandler = (event: Event) => {
+  const action = (event as CustomEvent).detail;
+
+  if (action === "left") this.moveLane(-1);
+  if (action === "right") this.moveLane(1);
+  if (action === "nitro") this.useNitro();
+};
+
+window.addEventListener("turbo-control", controlHandler);
+
+this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+  window.removeEventListener("turbo-control", controlHandler);
+});
+
+// Управление свайпами
+let touchStartX = 0;
+
+this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
+  touchStartX = p.x;
+});
+
+this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
+  const difference = p.x - touchStartX;
+
+  if (difference < -25) this.moveLane(-1);
+  if (difference > 25) this.moveLane(1);
+});
     this.time.delayedCall(35000, () => this.finish());
   }
 
