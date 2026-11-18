@@ -147,6 +147,48 @@ const lights = [
   this.add.rectangle(-bodyWidth * 0.29, -bodyHeight / 2 + 3, 8, 4, 0xffffff),
   this.add.rectangle(bodyWidth * 0.29, -bodyHeight / 2 + 3, 8, 4, 0xffffff)
 ];
+    
+// Дополнительные спортивные детали
+const extraParts: Phaser.GameObjects.GameObject[] = [];
+
+// Гоночные полосы на капоте
+if (model === 0 || model === 3 || model === 4) {
+  extraParts.push(
+    this.add.rectangle(-5, -bodyHeight * 0.34, 3, bodyHeight * 0.22, 0xffffff),
+    this.add.rectangle(5, -bodyHeight * 0.34, 3, bodyHeight * 0.22, 0xffffff)
+  );
+}
+
+// Большой задний спойлер для VOLT GT и NOVA X
+if (model === 1 || model === 3) {
+  extraParts.push(
+    this.add.rectangle(0, bodyHeight * 0.43, bodyWidth + 18, 5, 0x171d28),
+    this.add.rectangle(-bodyWidth * 0.28, bodyHeight * 0.36, 4, 10, 0x171d28),
+    this.add.rectangle(bodyWidth * 0.28, bodyHeight * 0.36, 4, 10, 0x171d28)
+  );
+}
+
+// Спортивный диффузор PHANTOM R
+if (model === 2) {
+  extraParts.push(
+    this.add.rectangle(0, bodyHeight * 0.43, bodyWidth * 0.7, 6, 0x171d28),
+    this.add.rectangle(-8, bodyHeight * 0.48, 3, 7, 0x8c62ff),
+    this.add.rectangle(8, bodyHeight * 0.48, 3, 7, 0x8c62ff)
+  );
+}
+
+// Боковые пороги
+extraParts.push(
+  this.add.rectangle(-bodyWidth / 2 - 3, 0, 3, bodyHeight * 0.55, 0x171d28),
+  this.add.rectangle(bodyWidth / 2 + 3, 0, 3, bodyHeight * 0.55, 0x171d28)
+);
+
+// Задние фонари
+extraParts.push(
+  this.add.rectangle(-bodyWidth * 0.27, bodyHeight / 2 - 3, 7, 4, 0xff354f),
+  this.add.rectangle(bodyWidth * 0.27, bodyHeight / 2 - 3, 7, 4, 0xff354f)
+);
+
 
 this.player = this.add.container(
   width / 2,
@@ -160,6 +202,7 @@ this.player = this.add.container(
     windshield,
     rearWindow,
     ...lights
+    ...extraParts
   ]
 );
     this.scoreText = this.add.text(16, 14, "DISTANCE  0", { fontFamily: "Arial", fontSize: "16px", color: "#ffffff", fontStyle: "bold" });
