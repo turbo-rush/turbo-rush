@@ -4,7 +4,45 @@ import Phaser from "phaser";
 type Tab = "race" | "garage" | "rating" | "shop";
 type Car = { name: string; className: string; speed: number; color: number; price: number };
 
+
 const cars: Car[] = [
+  {
+    name: "NEON SPRINT",
+    className: "D · STARTER",
+    speed: 1,
+    color: 0x36c5f0,
+    price: 0
+  },
+  {
+    name: "VOLT GT",
+    className: "C · STREET",
+    speed: 2,
+    color: 0xffc629,
+    price: 3000
+  },
+  {
+    name: "PHANTOM R",
+    className: "B · SPORT",
+    speed: 3,
+    color: 0x9b55ff,
+    price: 8000
+  },
+  {
+    name: "NOVA X",
+    className: "A · SUPER",
+    speed: 4,
+    color: 0xff354f,
+    price: 20000
+  },
+  {
+    name: "APEX ONE",
+    className: "S · LEGEND",
+    speed: 5,
+    color: 0xe8f2ff,
+    price: 50000
+  }
+];
+
   { name: "NEON SPRINT", className: "D · STARTER", speed: 1, color: 0x36c5f0, price: 0 },
   { name: "VOLT GT", className: "C · STREET", speed: 2, color: 0xffb52e, price: 3000 },
   { name: "PHANTOM R", className: "B · SPORT", speed: 3, color: 0xf05270, price: 8000 },
