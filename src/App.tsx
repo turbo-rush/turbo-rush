@@ -220,11 +220,14 @@ export default function App() {
       scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
       scene: new RaceScene((score) => {
         const reward = Math.max(40, Math.floor(score / 2) + 60);
-        setCoins(c => c + reward); setResult(score); setRaces(r => r + 1); setRace(false);
-      })
+        setCoins(c => c + reward);
+        setResult(score);
+        setRaces(r => r + 1);
+        setRace(false);
+      }, cars[selected].color)
     });
     return () => { phaserRef.current?.destroy(true); phaserRef.current = null; };
-  }, [race]);
+ }, [race, selected]);
 
   const startRace = () => { setResult(null); setRace(true); };
   const buyCar = (i: number) => {
