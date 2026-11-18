@@ -248,7 +248,65 @@ export default function App() {
         <button onClick={() => setTab("rating")}><span>🏆</span><b>РЕЙТИНГ</b><small>Лучшие гонщики</small></button>
         <button onClick={() => setTab("shop")}><span>🛒</span><b>МАГАЗИН</b><small>Бонусы и наборы</small></button>
       </section>
-      {tab === "garage" && <section className="content-card"><h2>ТВОЙ ГАРАЖ</h2>{cars.map((car,i)=><div className="car-row" key={car.name}><div className="car-icon" style={{background:`#${car.color.toString(16).padStart(6,"0")}`}}>▰</div><div className="car-info"><b>{car.name}</b><small>{car.className} · SPEED {car.speed}/5</small></div>{selected===i?<span className="owned">ВЫБРАНА</span>:<button className="small-btn" onClick={()=>buyCar(i)}>{car.price===0?"ВЫБРАТЬ":`₵ ${car.price.toLocaleString("en-US")}`}</button>}</div>)}</section>}
+      {tab === "garage" && <section className="garage-section">
+  <div className="garage-heading">
+    <div>
+      <span className="garage-eyebrow">YOUR COLLECTION</span>
+      <h2>ТВОЙ ГАРАЖ</h2>
+    </div>
+    <span className="garage-count">{owned.length} / 5</span>
+  </div>
+
+  <div className="garage-grid">
+    {cars.map((car, i) => {
+      const isOwned = owned.includes(i);
+      const isSelected = selected === i;
+
+      return (
+        <article className={`garage-card ${isSelected ? "selected" : ""}`} key={car.name}>
+          <div className="garage-car-stage">
+            <div
+              className="garage-car"
+              style={{ "--car-color": `#${car.color.toString(16).padStart(6, "0")}` } as React.CSSProperties}
+            >
+              <div className="car-wheel wheel-left-top" />
+              <div className="car-wheel wheel-right-top" />
+              <div className="car-wheel wheel-left-bottom" />
+              <div className="car-wheel wheel-right-bottom" />
+              <div className="car-body">
+                <div className="car-window front-window" />
+                <div className="car-window rear-window" />
+                <div className="car-light light-top" />
+                <div className="car-light light-bottom" />
+              </div>
+            </div>
+            {isSelected && <span className="selected-label">ВЫБРАНА</span>}
+          </div>
+
+          <div className="garage-card-info">
+            <h3>{car.name}</h3>
+            <span>{car.className}</span>
+            <div className="speed-label">SPEED {car.speed}/5</div>
+            <div className="speed-track">
+              <div style={{ width: `${car.speed * 20}%` }} />
+            </div>
+          </div>
+
+          <button
+            className={`garage-action ${isSelected ? "is-selected" : ""}`}
+            onClick={() => buyCar(i)}
+          >
+            {isSelected
+              ? "ВЫБРАНА"
+              : isOwned
+                ? "ВЫБРАТЬ"
+                : `₵ ${car.price.toLocaleString("en-US")}`}
+          </button>
+        </article>
+      );
+    })}
+  </div>
+</section>}
       {tab === "rating" && <section className="content-card"><h2>РЕЙТИНГ ГОНОЩИКОВ</h2><div className="leader"><b>1</b><span>NeonPilot</span><strong>12 840 pts</strong></div><div className="leader"><b>2</b><span>StreetFox</span><strong>11 920 pts</strong></div><div className="leader"><b>3</b><span>TurboKid</span><strong>10 450 pts</strong></div><div className="leader you"><b>—</b><span>Ты · Новичок</span><strong>{races*120} pts</strong></div></section>}
       {tab === "shop" && <section className="content-card"><h2>МАГАЗИН</h2><p>Премиальные товары появятся после подключения Telegram Stars.</p><div className="shop-item"><span>◆</span><div><b>Gems Pack</b><small>Премиальная валюта</small></div><strong>Скоро</strong></div><div className="shop-item"><span>⭐</span><div><b>VIP Club</b><small>Бонусы и эксклюзивный стиль</small></div><strong>Скоро</strong></div></section>}
     </>}
