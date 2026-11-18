@@ -33,7 +33,38 @@ private player!: Phaser.GameObjects.Container;
     const { width, height } = this.scale;
     this.road = this.add.graphics();
     this.drawRoad(width, height);
-    this.player = this.add.rectangle(width / 2, height - 105, 34, 58, 0x28c9f4).setStrokeStyle(3, 0xffffff);
+    // Создаём автомобиль из отдельных деталей
+const carBody = this.add.rectangle(0, 0, 38, 66, 0x28c9f4)
+  .setStrokeStyle(3, 0xffffff);
+
+const windshield = this.add.rectangle(0, -12, 26, 19, 0x153d59);
+
+const rearWindow = this.add.rectangle(0, 15, 25, 12, 0x153d59);
+
+const leftWheelFront = this.add.rectangle(-22, -19, 8, 17, 0x111111);
+const rightWheelFront = this.add.rectangle(22, -19, 8, 17, 0x111111);
+const leftWheelBack = this.add.rectangle(-22, 20, 8, 17, 0x111111);
+const rightWheelBack = this.add.rectangle(22, 20, 8, 17, 0x111111);
+
+const lights = [
+  this.add.rectangle(-11, -32, 8, 4, 0xffffff),
+  this.add.rectangle(11, -32, 8, 4, 0xffffff)
+];
+
+this.player = this.add.container(
+  width / 2,
+  height - 105,
+  [
+    leftWheelFront,
+    rightWheelFront,
+    leftWheelBack,
+    rightWheelBack,
+    carBody,
+    windshield,
+    rearWindow,
+    ...lights
+  ]
+);
     this.scoreText = this.add.text(16, 14, "DISTANCE  0", { fontFamily: "Arial", fontSize: "16px", color: "#ffffff", fontStyle: "bold" });
     this.nitroText = this.add.text(width - 16, 14, "NITRO 100%", { fontFamily: "Arial", fontSize: "14px", color: "#70e7ff" }).setOrigin(1, 0);
     this.cursors = this.input.keyboard!.createCursorKeys();
