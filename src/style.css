@@ -10,4 +10,136 @@ footer{text-align:center;color:#53657d;font-size:8px;letter-spacing:1px;margin-t
 .content-card{margin-top:14px;border:1px solid #26364b;border-radius:17px;padding:16px;background:#111d2e}.content-card h2{font-family:'Barlow Condensed',sans-serif;font-size:23px;margin:0 0 14px;letter-spacing:1px}.car-row,.shop-item,.leader{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #25354a}.car-icon{width:38px;height:32px;border-radius:9px;display:grid;place-items:center;color:#08111e;font-size:28px}.car-info{display:flex;flex:1;flex-direction:column;gap:4px}.car-info b,.shop-item b{font-size:11px}.car-info small,.shop-item small{font-size:9px;color:#8092aa}.owned{font-size:9px;color:#6be2b2;font-weight:800}.small-btn{border:1px solid #3d83a7;background:#142c40;color:#75def8;border-radius:8px;padding:7px 9px;font-size:9px;font-weight:800}.leader{font-size:11px}.leader b{color:#f6ca68;width:18px}.leader span{flex:1}.leader strong{color:#9db3cb;font-size:10px}.leader.you{color:#64d9f5}.shop-item>span{font-size:23px}.shop-item>div{flex:1;display:flex;flex-direction:column;gap:4px}.shop-item strong{font-size:10px;color:#9e8de8}
 .race-panel{border:1px solid #293b53;border-radius:18px;padding:12px;background:#111d2e}.race-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;font-size:9px;color:#8fa5bd}.race-head b{color:#fff}.game-wrap{width:100%;overflow:hidden;border-radius:10px}.game-wrap canvas{display:block!important;width:100%!important}.race-controls{display:flex;justify-content:space-between;gap:10px;margin-top:10px}.race-controls button{flex:1;border:1px solid #3b526b;border-radius:10px;background:#1c2b40;color:white;padding:12px;font-size:20px;font-weight:900}.race-controls .nitro{background:#153c54;color:#5fe0ff;font-size:12px;letter-spacing:1px}
 @media(max-width:370px){.hero h1{font-size:47px}.hero-stats{font-size:8px}.app-shell{padding-left:12px;padding-right:12px}}
+/* GARAGE */
+.garage-section {
+  margin-top: 18px;
+}
 
+.garage-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  margin: 0 0 14px;
+  color: #f4f7fb;
+}
+
+.garage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.garage-card {
+  position: relative;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #293e58;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #192b42, #0d1727);
+  overflow: hidden;
+}
+
+.garage-card.selected {
+  border: 2px solid #36cafa;
+  box-shadow: 0 0 18px #20bce933;
+}
+
+.garage-car {
+  height: 90px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.garage-car-body {
+  width: 105px;
+  height: 38px;
+  position: relative;
+  border-radius: 18px 25px 10px 10px;
+  background: var(--car-color, #32c9f4);
+  box-shadow: 0 8px 18px #0008;
+  transform: skewX(-8deg);
+}
+
+.garage-car-body::before {
+  content: "";
+  position: absolute;
+  width: 48px;
+  height: 20px;
+  left: 27px;
+  top: -15px;
+  background: #b8eaff;
+  border: 3px solid #263b55;
+  border-radius: 18px 18px 3px 3px;
+}
+
+.garage-car-body::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 7px;
+  right: -3px;
+  top: 13px;
+  border-radius: 4px;
+  background: #fff4b0;
+  box-shadow: 0 0 10px #fff4b0;
+}
+
+.garage-wheel {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: -9px;
+  border: 4px solid #71839b;
+  border-radius: 50%;
+  background: #080e19;
+}
+
+.garage-wheel.left {
+  left: 15px;
+}
+
+.garage-wheel.right {
+  right: 15px;
+}
+
+.garage-car-name {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.garage-car-price {
+  font-size: 10px;
+  color: #9aacc2;
+  margin-bottom: 10px;
+}
+
+.garage-card button {
+  width: 100%;
+  border: 1px solid #3d83a7;
+  border-radius: 9px;
+  padding: 9px 5px;
+  background: #142c40;
+  color: #75def8;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.garage-card button:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+@media (max-width: 370px) {
+  .garage-grid {
+    gap: 8px;
+  }
+
+  .garage-card {
+    padding: 9px;
+  }
+}
