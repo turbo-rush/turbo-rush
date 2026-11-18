@@ -201,7 +201,7 @@ this.player = this.add.container(
     carBody,
     windshield,
     rearWindow,
-    ...lights
+    ...lights,
     ...extraParts
   ]
 );
