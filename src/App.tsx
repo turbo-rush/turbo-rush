@@ -56,12 +56,14 @@ private player!: Phaser.GameObjects.Container;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private onFinish: (score: number) => void;
   private carColor: number;
+  private carModel: number;
   private finished = false;
 
-  constructor(onFinish: (score: number) => void, carColor: number) {
+  constructor(onFinish: (score: number) => void, carColor: number, carModel: number) {
   super("RaceScene");
   this.onFinish = onFinish;
   this.carColor = carColor;
+  this.carModel = carModel;
 }
 
   create() {
@@ -69,21 +71,81 @@ private player!: Phaser.GameObjects.Container;
     this.road = this.add.graphics();
     this.drawRoad(width, height);
     // Создаём автомобиль из отдельных деталей
-const carBody = this.add.rectangle(0, 0, 38, 66, this.carColor)
-  .setStrokeStyle(3, 0xffffff);
 
-const windshield = this.add.rectangle(0, -12, 26, 19, 0x153d59);
+const model = this.carModel;
 
-const rearWindow = this.add.rectangle(0, 15, 25, 12, 0x153d59);
+// Разные пропорции пяти автомобилей
+const bodyWidths = [38, 46, 34, 42, 40];
+const bodyHeights = [66, 60, 76, 68, 78];
+const windowWidths = [26, 32, 23, 29, 27];
+const windowHeights = [19, 17, 23, 20, 24];
 
-const leftWheelFront = this.add.rectangle(-22, -19, 8, 17, 0x111111);
-const rightWheelFront = this.add.rectangle(22, -19, 8, 17, 0x111111);
-const leftWheelBack = this.add.rectangle(-22, 20, 8, 17, 0x111111);
-const rightWheelBack = this.add.rectangle(22, 20, 8, 17, 0x111111);
+const bodyWidth = bodyWidths[model] ?? 38;
+const bodyHeight = bodyHeights[model] ?? 66;
+const windowWidth = windowWidths[model] ?? 26;
+const windowHeight = windowHeights[model] ?? 19;
 
+// Кузов
+const carBody = this.add.graphics();
+carBody.fillStyle(this.carColor, 1);
+carBody.lineStyle(3, 0xffffff, 0.9);
+carBody.fillRoundedRect(
+  -bodyWidth / 2,
+  -bodyHeight / 2,
+  bodyWidth,
+  bodyHeight,
+  model === 2 ? 7 : model === 4 ? 13 : 10
+);
+carBody.strokeRoundedRect(
+  -bodyWidth / 2,
+  -bodyHeight / 2,
+  bodyWidth,
+  bodyHeight,
+  model === 2 ? 7 : model === 4 ? 13 : 10
+);
+
+// Переднее стекло
+const windshield = this.add.rectangle(
+  0,
+  -bodyHeight * 0.19,
+  windowWidth,
+  windowHeight,
+  0x153d59
+);
+
+// Заднее стекло
+const rearWindow = this.add.rectangle(
+  0,
+  bodyHeight * 0.22,
+  windowWidth - 2,
+  Math.max(10, windowHeight - 6),
+  0x153d59
+);
+
+// Колёса
+const wheelWidth = model === 1 ? 9 : 8;
+const wheelHeight = model === 4 ? 19 : 17;
+const wheelX = bodyWidth / 2 + 3;
+const frontY = -bodyHeight * 0.29;
+const backY = bodyHeight * 0.30;
+
+const leftWheelFront = this.add.rectangle(
+  -wheelX, frontY, wheelWidth, wheelHeight, 0x111111
+);
+const rightWheelFront = this.add.rectangle(
+  wheelX, frontY, wheelWidth, wheelHeight, 0x111111
+);
+const leftWheelBack = this.add.rectangle(
+  -wheelX, backY, wheelWidth, wheelHeight, 0x111111
+);
+const rightWheelBack = this.add.rectangle(
+  wheelX, backY, wheelWidth, wheelHeight, 0x111111
+);
+
+// Передние фары
 const lights = [
-  this.add.rectangle(-11, -32, 8, 4, 0xffffff),
-  this.add.rectangle(11, -32, 8, 4, 0xffffff)
+  this.add.rectangle(-bodyWidth * 0.29, -bodyHeight / 2 + 3, 8, 4, 0xffffff),
+  this.add.rectangle(bodyWidth * 0.29, -bodyHeight / 2 + 3, 8, 4, 0xffffff)
 ];
 
 this.player = this.add.container(
@@ -224,7 +286,7 @@ export default function App() {
         setResult(score);
         setRaces(r => r + 1);
         setRace(false);
-      }, cars[selected].color)
+     }, cars[selected].color, selected)
     });
     return () => { phaserRef.current?.destroy(true); phaserRef.current = null; };
  }, [race, selected]);
