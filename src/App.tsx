@@ -170,6 +170,7 @@ export default function App() {
   const phaserRef = useRef<Phaser.Game | null>(null);
   const [tab, setTab] = useState<Tab>("race");
   const [coins, setCoins] = useState(1200);
+  const [selected, setSelected] = useState(0);
   const [owned, setOwned] = useState<number[]>([0]);
   const [race, setRace] = useState(false);
   const [result, setResult] = useState<number | null>(null);
