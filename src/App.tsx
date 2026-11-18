@@ -235,7 +235,7 @@ export default function App() {
     }))
   }>→</button>
 </div>
-    </section> : <>
+    </section>) : <>
       <section className="hero">
         <div className="hero-copy"><div className="eyebrow">YOUR NEXT RACE STARTS NOW</div><h1>OWN THE<br/><em>STREETS.</em></h1><p>Гоняй. Улучшай. Бросай вызов друзьям.</p></div>
         <div className="car-art"><div className="car-glow"></div><div className="car-shape">▰</div><div className="speed-lines"></div></div>
