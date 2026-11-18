@@ -55,16 +55,21 @@ private player!: Phaser.GameObjects.Container;
   private nitroText!: Phaser.GameObjects.Text;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private onFinish: (score: number) => void;
+  private carColor: number;
   private finished = false;
 
-  constructor(onFinish: (score: number) => void) { super("RaceScene"); this.onFinish = onFinish; }
+  constructor(onFinish: (score: number) => void, carColor: number) {
+  super("RaceScene");
+  this.onFinish = onFinish;
+  this.carColor = carColor;
+}
 
   create() {
     const { width, height } = this.scale;
     this.road = this.add.graphics();
     this.drawRoad(width, height);
     // Создаём автомобиль из отдельных деталей
-const carBody = this.add.rectangle(0, 0, 38, 66, 0x28c9f4)
+const carBody = this.add.rectangle(0, 0, 38, 66, this.carColor)
   .setStrokeStyle(3, 0xffffff);
 
 const windshield = this.add.rectangle(0, -12, 26, 19, 0x153d59);
