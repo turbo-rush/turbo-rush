@@ -204,9 +204,6 @@ export default function App() {
   setOwned(prev => [...prev, i]);
   setSelected(i);
 };
-    if (cars[i].price <= coins) { setCoins(c => c - cars[i].price); setSelected(i); }
-  };
-
   return <main className="app-shell">
     <header className="topbar">
       <div><div className="brand">TURBO <span>RUSH</span></div><div className="subbrand">ARCADE STREET LEAGUE</div></div>
@@ -235,7 +232,7 @@ export default function App() {
     }))
   }>→</button>
 </div>
-    </section>) : <>
+    </section> : <>
       <section className="hero">
         <div className="hero-copy"><div className="eyebrow">YOUR NEXT RACE STARTS NOW</div><h1>OWN THE<br/><em>STREETS.</em></h1><p>Гоняй. Улучшай. Бросай вызов друзьям.</p></div>
         <div className="car-art"><div className="car-glow"></div><div className="car-shape">▰</div><div className="speed-lines"></div></div>
