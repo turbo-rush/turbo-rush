@@ -204,7 +204,25 @@ export default function App() {
     {race ? <section className="race-panel">
       <div className="race-head"><b>STREET RUN · CITY 01</b><span>Свайп / ← → · SPACE — нитро</span></div>
       <div className="game-wrap" ref={gameRef}></div>
-      <div className="race-controls"><button onClick={() => window.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowLeft"}))}>←</button><button className="nitro" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown",{key:" "}))}>NITRO</button><button onClick={() => window.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))}>→</button></div>
+      <div className="race-controls">
+  <button onClick={() =>
+    window.dispatchEvent(new CustomEvent("turbo-control", {
+      detail: "left"
+    }))
+  }>←</button>
+
+  <button className="nitro" onClick={() =>
+    window.dispatchEvent(new CustomEvent("turbo-control", {
+      detail: "nitro"
+    }))
+  }>NITRO</button>
+
+  <button onClick={() =>
+    window.dispatchEvent(new CustomEvent("turbo-control", {
+      detail: "right"
+    }))
+  }>→</button>
+</div>
     </section> : <>
       <section className="hero">
         <div className="hero-copy"><div className="eyebrow">YOUR NEXT RACE STARTS NOW</div><h1>OWN THE<br/><em>STREETS.</em></h1><p>Гоняй. Улучшай. Бросай вызов друзьям.</p></div>
