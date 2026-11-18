@@ -193,6 +193,17 @@ export default function App() {
 
   const startRace = () => { setResult(null); setRace(true); };
   const buyCar = (i: number) => {
+  if (owned.includes(i)) {
+    setSelected(i);
+    return;
+  }
+
+  if (cars[i].price > coins) return;
+
+  setCoins(c => c - cars[i].price);
+  setOwned(prev => [...prev, i]);
+  setSelected(i);
+};
     if (cars[i].price <= coins) { setCoins(c => c - cars[i].price); setSelected(i); }
   };
 
