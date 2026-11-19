@@ -145,7 +145,28 @@ if (cameraMode === "top") {
     };
   }, [cameraMode]);
 
-  return (
+  
+return (
+  <div style={{ width: "100%", position: "relative" }}>
+    <div
+      style={{
+        position: "absolute",
+        top: "12px",
+        left: "12px",
+        zIndex: 2,
+        display: "flex",
+        gap: "8px"
+      }}
+    >
+      <button onClick={() => setCameraMode("top")}>
+        TOP VIEW
+      </button>
+
+      <button onClick={() => setCameraMode("angle")}>
+        ANGLE VIEW
+      </button>
+    </div>
+
     <div
       ref={mountRef}
       style={{
@@ -155,6 +176,7 @@ if (cameraMode === "top") {
         borderRadius: "16px"
       }}
     />
-  );
-}
+  </div>
+);
+
 
