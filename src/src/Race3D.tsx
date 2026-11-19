@@ -20,7 +20,6 @@ export default function Race3D() {
       1000
     );
 
-    const [cameraMode, setCameraMode] = [0, 1] as const;
 
 if (cameraMode === "top") {
   // Строго сверху
