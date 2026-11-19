@@ -10,6 +10,7 @@ type Race3DProps = {
 export default function Race3D({ carColor, carModel, onFinish }: Race3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [cameraMode, setCameraMode] = useState<"top" | "angle">("angle");
+  const [steeringAngle, setSteeringAngle] = useState(0);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -238,6 +239,7 @@ return (
     const rect = event.currentTarget.getBoundingClientRect();
     const center = rect.left + rect.width / 2;
     const value = ((event.clientX - center) / (rect.width / 2)) * 4;
+    setSteeringAngle(value * 35);
 
     window.dispatchEvent(
       new CustomEvent("turbo-steer", {
@@ -245,12 +247,12 @@ return (
       })
     );
   }}
-  onPointerUp={() => {
+  onPointerUp={() => {setSteeringAngle(0);
     window.dispatchEvent(
       new CustomEvent("turbo-steer", { detail: 0 })
     );
   }}
-  onPointerCancel={() => {
+  onPointerCancel={() => {setSteeringAngle(0);
     window.dispatchEvent(
       new CustomEvent("turbo-steer", { detail: 0 })
     );
