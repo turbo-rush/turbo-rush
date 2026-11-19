@@ -116,6 +116,15 @@ if (cameraMode === "top") {
     }
 
     car.position.set(0, 0, 4);
+    // Состояние нитро
+let nitroActive = false;
+
+const handleNitro = (event: Event) => {
+  const customEvent = event as CustomEvent<boolean>;
+  nitroActive = customEvent.detail;
+};
+
+window.addEventListener("turbo-nitro", handleNitro);
     scene.add(car);
   // Управление поворотом от виртуального руля
 let steeringTargetX = 0;
