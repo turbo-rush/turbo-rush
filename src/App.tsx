@@ -143,9 +143,47 @@ const rightWheelBack = this.add.rectangle(
 );
 
 // Передние фары
+// Индивидуальный цвет передних фар
+const headlightColor =
+  model === 0 ? 0x36c5f0 :
+  model === 1 ? 0xffc629 :
+  model === 2 ? 0x9b55ff :
+  model === 3 ? 0xff354f :
+  0xe8f2ff;
+
 const lights = [
-  this.add.rectangle(-bodyWidth * 0.29, -bodyHeight / 2 + 3, 8, 4, 0xffffff),
-  this.add.rectangle(bodyWidth * 0.29, -bodyHeight / 2 + 3, 8, 4, 0xffffff)
+  this.add.rectangle(
+    -bodyWidth * 0.29,
+    -bodyHeight / 2 + 3,
+    8,
+    5,
+    headlightColor
+  ),
+  this.add.rectangle(
+    bodyWidth * 0.29,
+    -bodyHeight / 2 + 3,
+    8,
+    5,
+    headlightColor
+  )
+];
+
+// Лёгкое свечение фар
+const headlightGlow = [
+  this.add.circle(
+    -bodyWidth * 0.29,
+    -bodyHeight / 2 + 3,
+    6,
+    headlightColor,
+    0.25
+  ),
+  this.add.circle(
+    bodyWidth * 0.29,
+    -bodyHeight / 2 + 3,
+    6,
+    headlightColor,
+    0.25
+  )
 ];
     
 // Дополнительные спортивные детали
@@ -267,8 +305,9 @@ this.player = this.add.container(
     carBody,
     windshield,
     rearWindow,
-    ...lights,
-    ...extraParts
+...headlightGlow,
+...lights,
+...extraParts
   ]
 );
     this.scoreText = this.add.text(16, 14, "DISTANCE  0", { fontFamily: "Arial", fontSize: "16px", color: "#ffffff", fontStyle: "bold" });
