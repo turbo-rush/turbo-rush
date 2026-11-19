@@ -565,7 +565,17 @@ export default function App() {
 
     {race ? <section className="race-panel">
       <div className="race-head"><b>STREET RUN · CITY 01</b><span>Свайп / ← → · SPACE — нитро</span></div>
-      <div className="game-wrap" ref={gameRef}></div>
+      <Race3D
+  carColor={cars[selected].color}
+  carModel={selected}
+  onFinish={(score) => {
+    const reward = Math.max(40, Math.floor(score / 2) + 60);
+    setCoins(c => c + reward);
+    setResult(score);
+    setRaces(r => r + 1);
+    setRace(false);
+  }}
+/>
       <div className="race-controls">
   <button onClick={() =>
     window.dispatchEvent(new CustomEvent("turbo-control", {
