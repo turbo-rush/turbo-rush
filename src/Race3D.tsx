@@ -116,7 +116,7 @@ if (cameraMode === "top") {
 
     car.position.set(0, 0, 4);
     scene.add(car);
-    // Управление поворотом от виртуального руля
+  // Управление поворотом от виртуального руля
 let steeringTargetX = 0;
 
 const handleSteer = (event: Event) => {
@@ -228,6 +228,33 @@ return (
      
 {/* Реалистичный спортивный руль */}
 <div
+  onPointerDown={(event) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }}
+  onPointerMove={(event) => {
+    if (event.buttons === 0) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const center = rect.left + rect.width / 2;
+    const value = ((event.clientX - center) / (rect.width / 2)) * 4;
+
+    window.dispatchEvent(
+      new CustomEvent("turbo-steer", {
+        detail: Math.max(-4, Math.min(4, value))
+      })
+    );
+  }}
+  onPointerUp={() => {
+    window.dispatchEvent(
+      new CustomEvent("turbo-steer", { detail: 0 })
+    );
+  }}
+  onPointerCancel={() => {
+    window.dispatchEvent(
+      new CustomEvent("turbo-steer", { detail: 0 })
+    );
+  }}
   style={{
     width: "116px",
     height: "116px",
