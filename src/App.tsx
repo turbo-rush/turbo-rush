@@ -366,6 +366,32 @@ this.player = this.add.container(
 ...extraParts
   ]
 );
+    // Пламя нитро за автомобилем
+const flameLeft = this.add.triangle(
+  -bodyWidth * 0.22,
+  bodyHeight * 0.52,
+  -4, 0,
+  4, 0,
+  0, 22,
+  0x36c5f0
+);
+
+const flameRight = this.add.triangle(
+  bodyWidth * 0.22,
+  bodyHeight * 0.52,
+  -4, 0,
+  4, 0,
+  0, 22,
+  0x36c5f0
+);
+
+this.nitroFlame = this.add.container(
+  width / 2,
+  height - 105,
+  [flameLeft, flameRight]
+);
+
+this.nitroFlame.setVisible(false);
     this.scoreText = this.add.text(16, 14, "DISTANCE  0", { fontFamily: "Arial", fontSize: "16px", color: "#ffffff", fontStyle: "bold" });
     this.nitroText = this.add.text(width - 16, 14, "NITRO 100%", { fontFamily: "Arial", fontSize: "14px", color: "#70e7ff" }).setOrigin(1, 0);
     this.cursors = this.input.keyboard!.createCursorKeys();
