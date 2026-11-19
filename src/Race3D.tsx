@@ -78,6 +78,7 @@ if (cameraMode === "top") {
 
     // Машина
     const car = new THREE.Group();
+    const carRef = { current: car };
 
     const body = new THREE.Mesh(
       new THREE.BoxGeometry(2.1, 0.7, 4),
@@ -123,6 +124,17 @@ if (cameraMode === "top") {
     );
     outline.position.copy(body.position);
     car.add(outline);
+    const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === "ArrowLeft" || event.key === "a") {
+    car.position.x = Math.max(-4, car.position.x - 1);
+  }
+
+  if (event.key === "ArrowRight" || event.key === "d") {
+    car.position.x = Math.min(4, car.position.x + 1);
+  }
+};
+
+window.addEventListener("keydown", handleKeyDown);
 
     let animationId = 0;
 
@@ -143,7 +155,7 @@ if (cameraMode === "top") {
     window.addEventListener("resize", resize);
 
     return () => {
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame window.removeEventListener("keydown", handleKeyDown);(animationId);
       window.removeEventListener("resize", resize);
       renderer.dispose();
       mount.removeChild(renderer.domElement);
