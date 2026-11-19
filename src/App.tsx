@@ -220,6 +220,29 @@ if (model === 4) {
     this.add.rectangle(bodyWidth * 0.32, bodyHeight * 0.35, 4, 11, 0xe8f2ff)
   );
 }
+    // Боковые зеркала заднего вида
+const mirrorColor = model === 0 ? 0x36c5f0 :
+  model === 1 ? 0xffc629 :
+  model === 2 ? 0x9b55ff :
+  model === 3 ? 0xff354f :
+  0xe8f2ff;
+
+extraParts.push(
+  this.add.rectangle(
+    -bodyWidth / 2 - 6,
+    -bodyHeight * 0.18,
+    7,
+    9,
+    mirrorColor
+  ),
+  this.add.rectangle(
+    bodyWidth / 2 + 6,
+    -bodyHeight * 0.18,
+    7,
+    9,
+    mirrorColor
+  )
+);
 // Боковые пороги
 extraParts.push(
   this.add.rectangle(-bodyWidth / 2 - 3, 0, 3, bodyHeight * 0.55, 0x171d28),
