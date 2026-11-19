@@ -116,6 +116,15 @@ if (cameraMode === "top") {
 
     car.position.set(0, 0, 4);
     scene.add(car);
+    // Управление поворотом от виртуального руля
+let steeringTargetX = 0;
+
+const handleSteer = (event: Event) => {
+  const customEvent = event as CustomEvent<number>;
+  steeringTargetX = THREE.MathUtils.clamp(customEvent.detail, -4, 4);
+};
+
+window.addEventListener("turbo-steer", handleSteer);
 
     // Чёрный контур кузова
     const outline = new THREE.LineSegments(
@@ -139,9 +148,13 @@ window.addEventListener("keydown", handleKeyDown);
     let animationId = 0;
 
     const animate = () => {
-      animationId = requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    };
+  animationId = requestAnimationFrame(animate);
+
+  // Плавное движение машины за рулём
+  car.position.x += (steeringTargetX - car.position.x) * 0.12;
+
+  renderer.render(scene, camera);
+};
 
     animate();
 
@@ -155,6 +168,7 @@ window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", resize);
 
     return () => {
+  window.removeEventListener("turbo-steer", handleSteer); 
   cancelAnimationFrame(animationId);
   window.removeEventListener("keydown", handleKeyDown);
   window.removeEventListener("resize", resize);
