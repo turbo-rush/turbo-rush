@@ -19,9 +19,10 @@ export default function Race3D() {
       1000
     );
 
-    camera.position.set(0, 12, 16);
-    camera.lookAt(0, 0, 0);
+    const [cameraMode, setCameraMode] = [0, 1] as const;
 
+camera.position.set(0, 12, 16);
+camera.lookAt(0, 0, 0);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
