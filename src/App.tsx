@@ -453,11 +453,19 @@ this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
 
   private useNitro() {
     if (this.nitro < 25 || this.finished) return;
+
     this.nitro -= 25;
     this.speed = 7;
-    this.time.delayedCall(1600, () => this.speed = 4);
+
+    this.nitroFlame.setVisible(true);
+
+    this.time.delayedCall(1600, () => {
+      this.speed = 4;
+      this.nitroFlame.setVisible(false);
+    });
+
     this.nitroText.setText(`NITRO ${this.nitro}%`);
-  }
+}
 
   update(_time: number, delta: number) {
     if (this.finished) return;
