@@ -44,6 +44,7 @@ const cars: Car[] = [
 ];
 class RaceScene extends Phaser.Scene {
 private player!: Phaser.GameObjects.Container;
+  private nitroFlame!: Phaser.GameObjects.Container;
   private obstacles: Phaser.GameObjects.Rectangle[] = [];
   private road!: Phaser.GameObjects.Graphics;
   private score = 0;
