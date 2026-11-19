@@ -393,6 +393,16 @@ this.nitroFlame = this.add.container(
 );
 
 this.nitroFlame.setVisible(false);
+    // Анимация пламени нитро
+this.nitroTween = this.tweens.add({
+  targets: this.nitroFlame,
+  scaleY: { from: 0.65, to: 1.35 },
+  scaleX: { from: 0.9, to: 1.1 },
+  duration: 120,
+  yoyo: true,
+  repeat: -1,
+  paused: true
+});
     this.scoreText = this.add.text(16, 14, "DISTANCE  0", { fontFamily: "Arial", fontSize: "16px", color: "#ffffff", fontStyle: "bold" });
     this.nitroText = this.add.text(width - 16, 14, "NITRO 100%", { fontFamily: "Arial", fontSize: "14px", color: "#70e7ff" }).setOrigin(1, 0);
     this.cursors = this.input.keyboard!.createCursorKeys();
