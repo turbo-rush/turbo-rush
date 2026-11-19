@@ -22,8 +22,15 @@ export default function Race3D() {
 
     const [cameraMode, setCameraMode] = [0, 1] as const;
 
-camera.position.set(0, 12, 16);
-camera.lookAt(0, 0, 0);
+if (cameraMode === "top") {
+  // Строго сверху
+  camera.position.set(0, 24, 3);
+  camera.lookAt(0, 0, 0);
+} else {
+  // Сверху под углом
+  camera.position.set(0, 12, 16);
+  camera.lookAt(0, 0, 0);
+}
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -137,7 +144,7 @@ camera.lookAt(0, 0, 0);
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [cameraMode]);
 
   return (
     <div
