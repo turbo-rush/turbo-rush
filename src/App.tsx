@@ -176,7 +176,50 @@ if (model === 2) {
     this.add.rectangle(8, bodyHeight * 0.48, 3, 7, 0x8c62ff)
   );
 }
+// Уникальные детали каждой машины
 
+// NEON SPRINT — голубые неоновые акценты
+if (model === 0) {
+  extraParts.push(
+    this.add.rectangle(-bodyWidth / 2 - 5, 0, 3, bodyHeight * 0.35, 0x36c5f0),
+    this.add.rectangle(bodyWidth / 2 + 5, 0, 3, bodyHeight * 0.35, 0x36c5f0)
+  );
+}
+
+// VOLT GT — жёлтый спортивный передний сплиттер
+if (model === 1) {
+  extraParts.push(
+    this.add.rectangle(0, -bodyHeight * 0.48, bodyWidth * 0.85, 5, 0xffc629),
+    this.add.rectangle(-bodyWidth * 0.3, -bodyHeight * 0.38, 4, 7, 0xffc629),
+    this.add.rectangle(bodyWidth * 0.3, -bodyHeight * 0.38, 4, 7, 0xffc629)
+  );
+}
+
+// PHANTOM R — фиолетовые боковые воздухозаборники
+if (model === 2) {
+  extraParts.push(
+    this.add.rectangle(-bodyWidth * 0.34, 0, 5, 17, 0x9b55ff),
+    this.add.rectangle(bodyWidth * 0.34, 0, 5, 17, 0x9b55ff)
+  );
+}
+
+// NOVA X — красный передний сплиттер
+if (model === 3) {
+  extraParts.push(
+    this.add.rectangle(0, -bodyHeight * 0.49, bodyWidth + 12, 5, 0xff354f),
+    this.add.rectangle(-bodyWidth * 0.38, -bodyHeight * 0.35, 5, 9, 0xff354f),
+    this.add.rectangle(bodyWidth * 0.38, -bodyHeight * 0.35, 5, 9, 0xff354f)
+  );
+}
+
+// APEX ONE — белый премиальный спойлер
+if (model === 4) {
+  extraParts.push(
+    this.add.rectangle(0, bodyHeight * 0.43, bodyWidth + 22, 5, 0xe8f2ff),
+    this.add.rectangle(-bodyWidth * 0.32, bodyHeight * 0.35, 4, 11, 0xe8f2ff),
+    this.add.rectangle(bodyWidth * 0.32, bodyHeight * 0.35, 4, 11, 0xe8f2ff)
+  );
+}
 // Боковые пороги
 extraParts.push(
   this.add.rectangle(-bodyWidth / 2 - 3, 0, 3, bodyHeight * 0.55, 0x171d28),
