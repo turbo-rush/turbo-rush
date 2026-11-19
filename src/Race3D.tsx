@@ -185,6 +185,7 @@ return (
       </button>
     </div>
 
+  
     <div
       ref={mountRef}
       style={{
@@ -194,6 +195,64 @@ return (
         borderRadius: "16px"
       }}
     />
+
+    {/* Нижняя панель управления */}
+    <div
+      style={{
+        position: "absolute",
+        bottom: "18px",
+        left: 0,
+        right: 0,
+        height: "112px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        pointerEvents: "none"
+      }}
+    >
+      {/* Виртуальный руль */}
+      <div
+        style={{
+          width: "96px",
+          height: "96px",
+          borderRadius: "50%",
+          border: "9px solid #dce4ed",
+          background: "rgba(15, 23, 35, 0.75)",
+          boxShadow: "0 4px 15px #0008",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: "55px",
+          fontWeight: "bold",
+          pointerEvents: "auto",
+          touchAction: "none"
+        }}
+      >
+        ◎
+      </div>
+
+      {/* Кнопка нитро */}
+      <button
+        style={{
+          position: "absolute",
+          right: "18px",
+          bottom: "8px",
+          width: "76px",
+          height: "76px",
+          borderRadius: "50%",
+          border: "3px solid #ffbd62",
+          background: "linear-gradient(145deg, #ff9d32, #e94b16)",
+          color: "white",
+          fontSize: "14px",
+          fontWeight: "900",
+          boxShadow: "0 4px 18px #ff641888",
+          pointerEvents: "auto",
+          touchAction: "none"
+        }}
+      >
+        ⚡ NITRO
+      </button>
+    </div>
   </div>
 );
-}
