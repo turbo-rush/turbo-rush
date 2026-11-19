@@ -340,6 +340,26 @@ return (
 
       {/* Кнопка нитро */}
       <button
+        onPointerDown={() => {
+  window.dispatchEvent(new CustomEvent("turbo-nitro", {
+    detail: true
+  }));
+}}
+onPointerUp={() => {
+  window.dispatchEvent(new CustomEvent("turbo-nitro", {
+    detail: false
+  }));
+}}
+onPointerLeave={() => {
+  window.dispatchEvent(new CustomEvent("turbo-nitro", {
+    detail: false
+  }));
+}}
+onPointerCancel={() => {
+  window.dispatchEvent(new CustomEvent("turbo-nitro", {
+    detail: false
+  }));
+}}
         style={{
           position: "absolute",
           right: "18px",
