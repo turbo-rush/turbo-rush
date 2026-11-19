@@ -258,6 +258,8 @@ return (
     );
   }}
   style={{
+    transform: `rotate(${steeringAngle}deg)`,
+    transition: "transform 0.12s ease-out",
     width: "116px",
     height: "116px",
     borderRadius: "50%",
