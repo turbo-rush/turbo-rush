@@ -188,7 +188,43 @@ const headlightGlow = [
     
 // Дополнительные спортивные детали
 const extraParts: Phaser.GameObjects.GameObject[] = [];
+// Индивидуальные выхлопные трубы
+const exhaustColor =
+  model === 0 ? 0x36c5f0 :
+  model === 1 ? 0xffc629 :
+  model === 2 ? 0x9b55ff :
+  model === 3 ? 0xff354f :
+  0xe8f2ff;
 
+// Две выхлопные трубы сзади
+extraParts.push(
+  this.add.rectangle(
+    -bodyWidth * 0.22,
+    bodyHeight * 0.49,
+    7,
+    9,
+    0x555b66
+  ),
+  this.add.rectangle(
+    bodyWidth * 0.22,
+    bodyHeight * 0.49,
+    7,
+    9,
+    0x555b66
+  ),
+  this.add.circle(
+    -bodyWidth * 0.22,
+    bodyHeight * 0.49,
+    2,
+    exhaustColor
+  ),
+  this.add.circle(
+    bodyWidth * 0.22,
+    bodyHeight * 0.49,
+    2,
+    exhaustColor
+  )
+);
 // Гоночные полосы на капоте
 if (model === 0 || model === 3 || model === 4) {
   extraParts.push(
