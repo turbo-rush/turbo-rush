@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
+import Race3D from "./Race3D";
 
 type Tab = "race" | "garage" | "rating" | "shop";
 type Car = { name: string; className: string; speed: number; color: number; price: number };
