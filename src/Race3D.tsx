@@ -211,26 +211,87 @@ return (
       }}
     >
       {/* Виртуальный руль */}
-      <div
-        style={{
-          width: "96px",
-          height: "96px",
-          borderRadius: "50%",
-          border: "9px solid #dce4ed",
-          background: "rgba(15, 23, 35, 0.75)",
-          boxShadow: "0 4px 15px #0008",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          fontSize: "55px",
-          fontWeight: "bold",
-          pointerEvents: "auto",
-          touchAction: "none"
-        }}
-      >
-        ◎
-      </div>
+     
+{/* Реалистичный спортивный руль */}
+<div
+  style={{
+    width: "116px",
+    height: "116px",
+    borderRadius: "50%",
+    position: "relative",
+    background: "radial-gradient(circle, #303d4d 0%, #111923 68%, #05080d 100%)",
+    border: "9px solid #171e29",
+    boxShadow: "0 0 0 3px #aebdca, 0 6px 18px #000b, inset 0 0 12px #000",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "auto",
+    touchAction: "none"
+  }}
+>
+  {/* Верхняя голубая метка */}
+  <div style={{
+    position: "absolute",
+    top: "-8px",
+    width: "12px",
+    height: "17px",
+    background: "#36c5f0",
+    borderRadius: "4px"
+  }} />
+
+  {/* Левая спица */}
+  <div style={{
+    position: "absolute",
+    width: "38px",
+    height: "11px",
+    background: "linear-gradient(#dce7ef, #657889)",
+    left: "7px",
+    top: "56px",
+    transform: "rotate(25deg)",
+    borderRadius: "5px"
+  }} />
+
+  {/* Правая спица */}
+  <div style={{
+    position: "absolute",
+    width: "38px",
+    height: "11px",
+    background: "linear-gradient(#dce7ef, #657889)",
+    right: "7px",
+    top: "56px",
+    transform: "rotate(-25deg)",
+    borderRadius: "5px"
+  }} />
+
+  {/* Нижняя спица */}
+  <div style={{
+    position: "absolute",
+    width: "13px",
+    height: "35px",
+    background: "linear-gradient(90deg, #718596, #e1eaf0, #718596)",
+    bottom: "3px",
+    borderRadius: "5px"
+  }} />
+
+  {/* Центральная ступица */}
+  <div style={{
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle at 35% 30%, #42566b, #101722 75%)",
+    border: "3px solid #a9bbc9",
+    boxShadow: "0 2px 8px #000",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#36c5f0",
+    fontSize: "12px",
+    fontWeight: "900",
+    zIndex: 1
+  }}>
+    TR
+  </div>
+</div>
 
       {/* Кнопка нитро */}
       <button
