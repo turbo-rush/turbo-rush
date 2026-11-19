@@ -155,12 +155,12 @@ window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", resize);
 
     return () => {
-      cancelAnimationFrame window.removeEventListener("keydown", handleKeyDown);(animationId);
-      window.removeEventListener("resize", resize);
-      renderer.dispose();
-      mount.removeChild(renderer.domElement);
-    };
-  }, [cameraMode]);
+  cancelAnimationFrame(animationId);
+  window.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("resize", resize);
+  renderer.dispose();
+  mount.removeChild(renderer.domElement);
+};
 
   
 return (
