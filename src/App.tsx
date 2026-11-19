@@ -287,10 +287,29 @@ extraParts.push(
   this.add.rectangle(bodyWidth / 2 + 3, 0, 3, bodyHeight * 0.55, 0x171d28)
 );
 
-// Задние фонари
+// Индивидуальные задние фонари
+const rearLightColor =
+  model === 0 ? 0x36c5f0 :
+  model === 1 ? 0xffc629 :
+  model === 2 ? 0x9b55ff :
+  model === 3 ? 0xff354f :
+  0xe8f2ff;
+
 extraParts.push(
-  this.add.rectangle(-bodyWidth * 0.27, bodyHeight / 2 - 3, 7, 4, 0xff354f),
-  this.add.rectangle(bodyWidth * 0.27, bodyHeight / 2 - 3, 7, 4, 0xff354f)
+  this.add.rectangle(
+    -bodyWidth * 0.27,
+    bodyHeight / 2 - 3,
+    8,
+    5,
+    rearLightColor
+  ),
+  this.add.rectangle(
+    bodyWidth * 0.27,
+    bodyHeight / 2 - 3,
+    8,
+    5,
+    rearLightColor
+  )
 );
 
 
