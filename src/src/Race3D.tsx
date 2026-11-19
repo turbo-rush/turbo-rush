@@ -1,9 +1,10 @@
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 export default function Race3D() {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [cameraMode, setCameraMode] = useState<"top" | "angle">("angle");
 
   useEffect(() => {
     const mount = mountRef.current;
