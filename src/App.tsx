@@ -469,10 +469,13 @@ this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
     this.speed = 7;
 
     this.nitroFlame.setVisible(true);
+    this.nitroTween.play();
 
     this.time.delayedCall(1600, () => {
       this.speed = 4;
-      this.nitroFlame.setVisible(false);
+this.nitroFlame.setVisible(false);
+this.nitroTween.pause();
+this.nitroFlame.setScale(1);
     });
 
     this.nitroText.setText(`NITRO ${this.nitro}%`);
