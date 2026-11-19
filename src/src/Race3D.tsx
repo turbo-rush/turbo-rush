@@ -2,7 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
-export default function Race3D() {
+type Race3DProps = {
+  carColor: number;
+  carModel: number;
+  onFinish: (score: number) => void;
+};
+
+export default function Race3D({ carColor, carModel, onFinish }: Race3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [cameraMode, setCameraMode] = useState<"top" | "angle">("angle");
 
@@ -77,7 +83,7 @@ if (cameraMode === "top") {
     const body = new THREE.Mesh(
       new THREE.BoxGeometry(2.1, 0.7, 4),
       new THREE.MeshStandardMaterial({
-        color: 0x36c5f0,
+        color: carColor,
         roughness: 0.35
       })
     );
