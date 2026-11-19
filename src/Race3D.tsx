@@ -161,6 +161,7 @@ window.addEventListener("keydown", handleKeyDown);
   renderer.dispose();
   mount.removeChild(renderer.domElement);
 };
+}, [cameraMode]);
 
   
 return (
