@@ -166,45 +166,59 @@ if (cameraMode === "top") {
     ground.position.set(0, -0.2, -35);
     scene.add(ground);
 
-    // Машина
+    // Компактная мультяшная гоночная машина в духе Circuit Superstars
     const car = new THREE.Group();
-    const carRef = { current: car };
-
     const body = new THREE.Mesh(
-      new THREE.BoxGeometry(2.1, 0.7, 4),
-      new THREE.MeshStandardMaterial({
-        color: carColor,
-        roughness: 0.35
-      })
+      new THREE.BoxGeometry(1.55, 0.52, 2.85),
+      new THREE.MeshStandardMaterial({ color: carColor, roughness: 0.38 })
     );
-    body.position.y = 0.8;
+    body.position.y = 0.58;
     body.castShadow = true;
     car.add(body);
 
+    // Низкий кокпит с тёмным остеклением
     const cabin = new THREE.Mesh(
-      new THREE.BoxGeometry(1.5, 0.75, 1.8),
-      new THREE.MeshStandardMaterial({
-        color: 0x142b42,
-        roughness: 0.2
-      })
+      new THREE.BoxGeometry(1.12, 0.48, 1.28),
+      new THREE.MeshStandardMaterial({ color: 0x142b42, roughness: 0.22, metalness: 0.12 })
     );
-    cabin.position.set(0, 1.45, -0.25);
+    cabin.position.set(0, 1.02, -0.18);
+    cabin.castShadow = true;
     car.add(cabin);
 
-    // Колёса
-    for (const x of [-1.1, 1.1]) {
-      for (const z of [-1.25, 1.25]) {
+    // Небольшой передний сплиттер и задний спойлер
+    const trimMaterial = new THREE.MeshStandardMaterial({ color: 0x151a20, roughness: 0.65 });
+    const splitter = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.12, 0.28), trimMaterial);
+    splitter.position.set(0, 0.38, 1.42);
+    car.add(splitter);
+    const spoiler = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.12, 0.22), trimMaterial);
+    spoiler.position.set(0, 0.88, -1.38);
+    car.add(spoiler);
+
+    // Компактные широкие шины
+    for (const x of [-0.84, 0.84]) {
+      for (const z of [-0.88, 0.88]) {
         const wheel = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.42, 0.42, 0.25, 16),
-          new THREE.MeshStandardMaterial({ color: 0x111111 })
+          new THREE.CylinderGeometry(0.29, 0.29, 0.2, 16),
+          new THREE.MeshStandardMaterial({ color: 0x101216, roughness: 0.92 })
         );
         wheel.rotation.z = Math.PI / 2;
-        wheel.position.set(x, 0.5, z);
+        wheel.position.set(x, 0.39, z);
         car.add(wheel);
       }
     }
 
-    car.position.set(0, 0, 4);
+    // Передние фары
+    const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xfff1c2 });
+    for (const x of [-0.48, 0.48]) {
+      const headlight = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.12, 0.08), headlightMaterial);
+      headlight.position.set(x, 0.62, 1.43);
+      car.add(headlight);
+    }
+
+    const startFrame = getTrackFrame(0);
+    car.position.set(startFrame.point.x, 0, startFrame.point.z);
+    const baseHeading = Math.atan2(startFrame.tangent.x, startFrame.tangent.z);
+    car.rotation.y = baseHeading;
     // Состояние нитро
 let nitroActive = false;
 
@@ -236,12 +250,13 @@ for (const x of [-0.5, 0.5]) {
 }
 
     scene.add(car);
-  // Управление поворотом от виртуального руля
+  // Управление: руль задаёт угол поворота машины, а не сдвигает её вбок
 let steeringTargetX = 0;
+let steeringVisual = 0;
 
 const handleSteer = (event: Event) => {
   const customEvent = event as CustomEvent<number>;
-  steeringTargetX = THREE.MathUtils.clamp(customEvent.detail, -4, 4);
+  steeringTargetX = THREE.MathUtils.clamp(customEvent.detail / 4, -1, 1);
 };
 
 window.addEventListener("turbo-steer", handleSteer);
@@ -255,15 +270,24 @@ window.addEventListener("turbo-steer", handleSteer);
     car.add(outline);
     const handleKeyDown = (event: KeyboardEvent) => {
   if (event.key === "ArrowLeft" || event.key === "a") {
-    car.position.x = Math.max(-4, car.position.x - 1);
+    steeringTargetX = -1;
   }
 
   if (event.key === "ArrowRight" || event.key === "d") {
-    car.position.x = Math.min(4, car.position.x + 1);
+    steeringTargetX = 1;
+  }
+  if (event.key === "ArrowUp" || event.key === "w") {
+    steeringTargetX *= 0.65;
+  }
+};
+const handleKeyUp = (event: KeyboardEvent) => {
+  if (["ArrowLeft", "ArrowRight", "a", "d"].includes(event.key)) {
+    steeringTargetX = 0;
   }
 };
 
 window.addEventListener("keydown", handleKeyDown);
+window.addEventListener("keyup", handleKeyUp);
 
     let animationId = 0;
 
@@ -271,8 +295,10 @@ window.addEventListener("keydown", handleKeyDown);
   animationId = requestAnimationFrame(animate);
 
   
-  // Плавное движение машины за рулём
-  car.position.x += (steeringTargetX - car.position.x) * 0.12;
+  // Плавный отклик руля и небольшой наклон кузова в повороте
+  steeringVisual += (steeringTargetX - steeringVisual) * 0.14;
+  car.rotation.y = baseHeading - steeringVisual * 0.32;
+  car.rotation.z = -steeringVisual * 0.045;
 
   // Показываем пульсирующее пламя при активном нитро
   flames.forEach((flame, index) => {
@@ -305,6 +331,7 @@ window.addEventListener("keydown", handleKeyDown);
   window.removeEventListener("turbo-nitro", handleNitro);
   cancelAnimationFrame(animationId);
   window.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("keyup", handleKeyUp);
   window.removeEventListener("resize", resize);
   renderer.dispose();
   mount.removeChild(renderer.domElement);
