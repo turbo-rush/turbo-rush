@@ -174,7 +174,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const tangent = curve.getTangentAt(t);
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
       const sideDirection = i % 2 === 0 ? 1 : -1;
-      const base = p.clone().addScaledVector(side, sideDirection * (27 + (i % 4) * 3));
+      const base = p.clone().addScaledVector(side, sideDirection * (20 + (i % 3) * 2.2));
       const height = 5 + (i % 5) * 2.1;
       const width = 4.2 + (i % 3) * 1.1;
       const depth = 4.5 + (i % 2) * 1.4;
