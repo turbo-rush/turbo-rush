@@ -335,6 +335,16 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     let skidCursor = 0;
     let skidTimer = 0;
 
+    // Brief comic sparks burst from the contact point when cars collide
+    const sparkParticles = Array.from({ length: 18 }, (_, i) => {
+      const material = new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffe36b : 0xff7138, transparent: true, opacity: 0 });
+      const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.13, 0), material);
+      mesh.visible = false;
+      scene.add(mesh);
+      return { mesh, velocity: new THREE.Vector3(), life: 0 };
+    });
+    let sparkCursor = 0;
+
     // Short comic speed streaks appear beside the road at high speed
     const speedStreaks = Array.from({ length: 14 }, (_, i) => {
       const streak = new THREE.Mesh(
@@ -496,8 +506,29 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           lateral = THREE.MathUtils.clamp(lateral + (lateral <= laneChange ? -0.65 : 0.65), -5.2, 5.2);
           bumpUntil = elapsed + 0.65;
           collisionCooldown = elapsed + 0.7;
+          const contact = player.position.clone().lerp(rival.position, 0.5);
+          for (let particle = 0; particle < 9; particle++) {
+            const spark = sparkParticles[sparkCursor];
+            sparkCursor = (sparkCursor + 1) % sparkParticles.length;
+            spark.life = 0.42 + Math.random() * 0.2;
+            spark.mesh.visible = true;
+            spark.mesh.position.copy(contact).add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 0.7 + Math.random() * 0.8, (Math.random() - 0.5) * 1.2));
+            spark.velocity.set((Math.random() - 0.5) * 7, 2 + Math.random() * 5, (Math.random() - 0.5) * 7);
+            spark.mesh.scale.setScalar(0.65 + Math.random() * 0.8);
+            (spark.mesh.material as THREE.MeshBasicMaterial).opacity = 1;
+          }
         }
         placeCar(rival, rivalProgress[i], laneChange);
+      });
+      sparkParticles.forEach(spark => {
+        if (spark.life <= 0) return;
+        spark.life -= dt;
+        spark.velocity.y -= dt * 9;
+        spark.mesh.position.addScaledVector(spark.velocity, dt);
+        spark.mesh.rotation.x += dt * 12;
+        spark.mesh.rotation.y += dt * 15;
+        (spark.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, spark.life / 0.62);
+        if (spark.life <= 0) spark.mesh.visible = false;
       });
       speedStreaks.forEach((streak, i) => {
         const active = speed > 0.052;
