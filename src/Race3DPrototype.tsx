@@ -115,6 +115,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   onFinishRef.current = onFinish;
   const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false });
   const [finished, setFinished] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -406,6 +407,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     let lateral = 0;
     let speed = 0;
     let elapsed = 0;
+    let countdownElapsed = 0;
     let last = 0;
     let hudTimer = 0;
     let previousPosition = 1;
@@ -438,8 +440,12 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const dt = Math.min((now - (last || now)) / 1000, 0.04);
       last = now;
       if (!finishRef.current) {
-        elapsed += dt;
-        const c = controlsRef.current;
+        countdownElapsed += dt;
+        const countdownActive = countdownElapsed < 3;
+        const c = countdownActive
+          ? { ...controlsRef.current, left: false, right: false, throttle: false, brake: false, nitro: false }
+          : controlsRef.current;
+        if (!countdownActive) elapsed += dt;
         const maxSpeed = c.nitro ? 0.115 : 0.082;
         const acceleration = c.brake ? -0.2 : c.throttle ? 0.105 : -0.035;
         speed = THREE.MathUtils.clamp(speed + acceleration * dt, 0, maxSpeed);
@@ -533,6 +539,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           const position = 1 + rivalProgress.filter(rival => rival > progress).length;
           if (position < previousPosition) overtakeUntil = elapsed + 1.6;
           previousPosition = position;
+          setCountdown(countdownElapsed < 3 ? Math.max(1, Math.ceil(3 - countdownElapsed)) : countdownElapsed < 3.65 ? 0 : -1);
           setHud({
             speed: Math.round(speed * 1500),
             lap: Math.min(totalLaps, Math.floor(progress) + 1),
@@ -634,6 +641,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", justifyContent: "space-between", color: "#fff", fontWeight: 900, fontSize: 12, textShadow: "0 2px 4px #111" }}>
       <span>LAP {hud.lap}/3</span><span>POS {hud.position}/4</span><span>{hud.speed} KM/H</span><span>{hud.time.toFixed(1)}s</span>
     </div>
+    {countdown >= 0 && !finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none", color: countdown === 0 ? "#ffe05b" : "#fff", fontSize: countdown === 0 ? 58 : 76, fontWeight: 1000, fontStyle: "italic", letterSpacing: 3, textShadow: "4px 5px 0 #152033, -2px -2px 0 #152033" }}>{countdown === 0 ? "GO!" : countdown}</div>}
     {hud.overtake && !finished && <div style={{ position: "absolute", top: 54, left: 0, right: 0, textAlign: "center", color: "#ffe05b", fontSize: 24, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033, -1px -1px 0 #152033" }}>OVERTAKE!</div>}
     {hud.offroad && !finished && <div style={{ position: "absolute", top: 84, left: 0, right: 0, textAlign: "center", color: "#ff9b42", fontSize: 18, fontWeight: 1000, fontStyle: "italic", letterSpacing: 1, textShadow: "2px 3px 0 #152033" }}>OFF TRACK! SLOW DOWN</div>}
     {hud.bumped && !finished && <div style={{ position: "absolute", top: 112, left: 0, right: 0, textAlign: "center", color: "#ff6b52", fontSize: 22, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033" }}>BUMP!</div>}
