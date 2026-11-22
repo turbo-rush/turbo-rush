@@ -674,7 +674,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   return <div style={{ position: "relative", width: "100%", overflow: "hidden", borderRadius: 16, background: "#9bd8ed" }}>
     <div ref={mountRef} style={{ width: "100%", height: "min(66vh, 590px)" }} />
     <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", justifyContent: "space-between", color: "#fff", fontWeight: 900, fontSize: 12, textShadow: "0 2px 4px #111" }}>
-      <span>LAP {hud.lap}/3</span><span>POS {hud.position}/4</span><span>{hud.speed} KM/H</span><span>{hud.time.toFixed(1)}s</span>
+      <span>LAP {hud.lap}/3</span><span>{hud.lap === 3 ? "FINAL LAP" : `${3 - hud.lap} LAPS LEFT`}</span><span>POS {hud.position}/4</span><span>{hud.speed} KM/H</span><span>{hud.time.toFixed(1)}s</span>
     </div>
     {countdown >= 0 && !finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none", color: countdown === 0 ? "#ffe05b" : "#fff", fontSize: countdown === 0 ? 58 : 76, fontWeight: 1000, fontStyle: "italic", letterSpacing: 3, textShadow: "4px 5px 0 #152033, -2px -2px 0 #152033" }}>{countdown === 0 ? "GO!" : countdown}</div>}
     <div style={{ position: "absolute", top: 34, left: 12, right: 12, height: 6, borderRadius: 8, overflow: "hidden", background: "rgba(10,20,32,.58)", border: "1px solid rgba(255,255,255,.55)" }}><div style={{ width: `${hud.lapProgress * 100}%`, height: "100%", borderRadius: 8, background: "linear-gradient(90deg,#20d9ff,#ffe05b)", transition: "width 120ms linear" }} /></div>
