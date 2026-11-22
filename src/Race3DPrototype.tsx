@@ -173,8 +173,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const p = curve.getPointAt(t);
       const tangent = curve.getTangentAt(t);
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
-      const sign = i % 2 === 0 ? 1 : -1;
-      const base = p.clone().addScaledVector(side, sign * (27 + (i % 4) * 3));
+      const sideDirection = i % 2 === 0 ? 1 : -1;
+      const base = p.clone().addScaledVector(side, sideDirection * (27 + (i % 4) * 3));
       const height = 5 + (i % 5) * 2.1;
       const width = 4.2 + (i % 3) * 1.1;
       const depth = 4.5 + (i % 2) * 1.4;
@@ -187,9 +187,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
       building.position.copy(outline.position);
       scene.add(building);
-      const sign = new THREE.Mesh(new THREE.BoxGeometry(width * 0.72, 0.42, 0.08), windowMaterial);
-      sign.position.set(base.x, Math.min(height - 1, 2.4 + (i % 3) * 1.3), base.z - depth / 2 - 0.06);
-      scene.add(sign);
+      const windowPanel = new THREE.Mesh(new THREE.BoxGeometry(width * 0.72, 0.42, 0.08), windowMaterial);
+      windowPanel.position.set(base.x, Math.min(height - 1, 2.4 + (i % 3) * 1.3), base.z - depth / 2 - 0.06);
+      scene.add(windowPanel);
     }
 
     const lampMaterial = new THREE.MeshBasicMaterial({ color: 0xffe6a6 });
