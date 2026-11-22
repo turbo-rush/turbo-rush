@@ -29,12 +29,12 @@ export default function Race3D({ carColor, carModel, onFinish }: Race3DProps) {
 
 if (cameraMode === "top") {
   // Строго сверху
-  camera.position.set(0, 24, 3);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, 34, 3);
+  camera.lookAt(0, 0, -8);
 } else {
   // Сверху под углом
-  camera.position.set(0, 12, 16);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, 22, 19);
+  camera.lookAt(0, 0, -8);
 }
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
@@ -50,22 +50,76 @@ if (cameraMode === "top") {
     sun.castShadow = true;
     scene.add(sun);
 
-    // Дорога
+    // Извилистая трасса: плавные S-образные повороты
+    const trackCenterX = (z: number) =>
+      5 * Math.sin((z - 4) * 0.045) + 1.5 * Math.sin((z - 4) * 0.1);
+    const trackSlope = (z: number) =>
+      5 * 0.045 * Math.cos((z - 4) * 0.045) +
+      1.5 * 0.1 * Math.cos((z - 4) * 0.1);
+    const roadSegments = 180;
+    const roadHalfWidth = 6;
+    const roadVertices = new Float32Array((roadSegments + 1) * 2 * 3);
+    const roadIndices: number[] = [];
+    const leftEdge: THREE.Vector3[] = [];
+    const rightEdge: THREE.Vector3[] = [];
+
+    for (let i = 0; i <= roadSegments; i++) {
+      const z = -90 + (110 * i) / roadSegments;
+      const centerX = trackCenterX(z);
+      const slope = trackSlope(z);
+      const normalLength = Math.sqrt(1 + slope * slope);
+      const normalX = 1 / normalLength;
+      const normalZ = -slope / normalLength;
+      const left = new THREE.Vector3(
+        centerX - normalX * roadHalfWidth, 0.02, z - normalZ * roadHalfWidth
+      );
+      const right = new THREE.Vector3(
+        centerX + normalX * roadHalfWidth, 0.02, z + normalZ * roadHalfWidth
+      );
+      leftEdge.push(left);
+      rightEdge.push(right);
+      const offset = i * 6;
+      roadVertices[offset] = left.x;
+      roadVertices[offset + 1] = left.y;
+      roadVertices[offset + 2] = left.z;
+      roadVertices[offset + 3] = right.x;
+      roadVertices[offset + 4] = right.y;
+      roadVertices[offset + 5] = right.z;
+      if (i < roadSegments) {
+        const a = i * 2;
+        roadIndices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+      }
+    }
+
+    const roadGeometry = new THREE.BufferGeometry();
+    roadGeometry.setAttribute("position", new THREE.BufferAttribute(roadVertices, 3));
+    roadGeometry.setIndex(roadIndices);
+    roadGeometry.computeVertexNormals();
     const road = new THREE.Mesh(
-      new THREE.BoxGeometry(12, 0.2, 100),
-      new THREE.MeshStandardMaterial({ color: 0x303038 })
+      roadGeometry,
+      new THREE.MeshStandardMaterial({ color: 0x303038, side: THREE.DoubleSide })
     );
-    road.position.z = -35;
     road.receiveShadow = true;
     scene.add(road);
 
-    // Разметка
-    for (let z = -80; z < 10; z += 8) {
+    // Светлые линии по краям асфальта
+    [leftEdge, rightEdge].forEach((points) => {
+      const edge = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(points),
+        new THREE.LineBasicMaterial({ color: 0xd7d2c8 })
+      );
+      edge.position.y = 0.08;
+      scene.add(edge);
+    });
+
+    // Пунктирная центральная разметка повторяет изгибы дороги
+    for (let z = -86; z < 16; z += 8) {
       const line = new THREE.Mesh(
         new THREE.BoxGeometry(0.18, 0.04, 3),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
+        new THREE.MeshBasicMaterial({ color: 0xf5f0df })
       );
-      line.position.set(0, 0.13, z);
+      line.position.set(trackCenterX(z), 0.13, z);
+      line.rotation.y = Math.atan(trackSlope(z));
       scene.add(line);
     }
 
@@ -229,8 +283,8 @@ return (
       style={{
         position: "absolute",
         top: "12px",
-        left: "12px",
-        zIndex: 2,
+        right: "12px",
+        zIndex: 3,
         display: "flex",
         gap: "8px"
       }}
@@ -245,6 +299,37 @@ return (
     </div>
 
   
+    {/* Мини-карта извилистой трассы */}
+    <div
+      style={{
+        position: "absolute",
+        top: "12px",
+        left: "12px",
+        zIndex: 3,
+        width: "112px",
+        height: "142px",
+        padding: "7px",
+        borderRadius: "12px",
+        background: "rgba(8, 15, 25, 0.82)",
+        border: "1px solid rgba(255,255,255,0.35)",
+        boxShadow: "0 4px 14px #0008",
+        pointerEvents: "none"
+      }}
+    >
+      <div style={{ color: "#dceaf5", fontSize: "9px", fontWeight: 900, letterSpacing: "1px", marginBottom: "3px" }}>
+        TRACK MAP
+      </div>
+      <svg viewBox="0 0 100 112" width="100%" height="112" aria-label="Мини-карта трассы">
+        <path d="M 48 4 C 18 17, 78 27, 49 43 S 18 66, 49 78 S 82 96, 52 108"
+          fill="none" stroke="#111923" strokeWidth="19" strokeLinecap="round" />
+        <path d="M 48 4 C 18 17, 78 27, 49 43 S 18 66, 49 78 S 82 96, 52 108"
+          fill="none" stroke="#d8d2c8" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M 48 4 C 18 17, 78 27, 49 43 S 18 66, 49 78 S 82 96, 52 108"
+          fill="none" stroke="#f4f0df" strokeWidth="1" strokeDasharray="3 4" />
+        <circle cx="49" cy="78" r="4.5" fill="#36c5f0" stroke="#ffffff" strokeWidth="1.5" />
+      </svg>
+    </div>
+
     <div
       ref={mountRef}
       style={{
