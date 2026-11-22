@@ -50,77 +50,112 @@ if (cameraMode === "top") {
     sun.castShadow = true;
     scene.add(sun);
 
-    // Извилистая трасса: плавные S-образные повороты
-    const trackCenterX = (z: number) =>
-      5 * Math.sin((z - 4) * 0.045) + 1.5 * Math.sin((z - 4) * 0.1);
-    const trackSlope = (z: number) =>
-      5 * 0.045 * Math.cos((z - 4) * 0.045) +
-      1.5 * 0.1 * Math.cos((z - 4) * 0.1);
-    const roadSegments = 180;
+    // Замкнутая гоночная трасса в духе Circuit Superstars
+    // Собственная конфигурация: длинные дуги, связки поворотов и шпилька
+    const trackPath = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0, 4),
+      new THREE.Vector3(9, 0, 5),
+      new THREE.Vector3(16, 0, 1),
+      new THREE.Vector3(18, 0, -6),
+      new THREE.Vector3(13, 0, -13),
+      new THREE.Vector3(3, 0, -16),
+      new THREE.Vector3(-8, 0, -14),
+      new THREE.Vector3(-16, 0, -9),
+      new THREE.Vector3(-19, 0, -1),
+      new THREE.Vector3(-16, 0, 7),
+      new THREE.Vector3(-9, 0, 13),
+      new THREE.Vector3(-1, 0, 14),
+      new THREE.Vector3(5, 0, 10)
+    ], true, "centripetal");
+
+    const trackSamples = 260;
     const roadHalfWidth = 6;
-    const roadVertices = new Float32Array((roadSegments + 1) * 2 * 3);
-    const roadIndices: number[] = [];
-    const leftEdge: THREE.Vector3[] = [];
-    const rightEdge: THREE.Vector3[] = [];
+    const getTrackFrame = (t: number) => {
+      const point = trackPath.getPointAt(t);
+      const tangent = trackPath.getTangentAt(t).normalize();
+      const normal = new THREE.Vector3(tangent.z, 0, -tangent.x);
+      return { point, tangent, normal };
+    };
 
-    for (let i = 0; i <= roadSegments; i++) {
-      const z = -90 + (110 * i) / roadSegments;
-      const centerX = trackCenterX(z);
-      const slope = trackSlope(z);
-      const normalLength = Math.sqrt(1 + slope * slope);
-      const normalX = 1 / normalLength;
-      const normalZ = -slope / normalLength;
-      const left = new THREE.Vector3(
-        centerX - normalX * roadHalfWidth, 0.02, z - normalZ * roadHalfWidth
-      );
-      const right = new THREE.Vector3(
-        centerX + normalX * roadHalfWidth, 0.02, z + normalZ * roadHalfWidth
-      );
-      leftEdge.push(left);
-      rightEdge.push(right);
-      const offset = i * 6;
-      roadVertices[offset] = left.x;
-      roadVertices[offset + 1] = left.y;
-      roadVertices[offset + 2] = left.z;
-      roadVertices[offset + 3] = right.x;
-      roadVertices[offset + 4] = right.y;
-      roadVertices[offset + 5] = right.z;
-      if (i < roadSegments) {
-        const a = i * 2;
-        roadIndices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+    const makeRibbon = (offset: number, halfWidth: number, y: number) => {
+      const vertices = new Float32Array((trackSamples + 1) * 2 * 3);
+      const indices: number[] = [];
+      for (let i = 0; i <= trackSamples; i++) {
+        const t = i / trackSamples;
+        const { point, normal } = getTrackFrame(t);
+        const center = point.clone().addScaledVector(normal, offset);
+        const left = center.clone().addScaledVector(normal, -halfWidth);
+        const right = center.clone().addScaledVector(normal, halfWidth);
+        const k = i * 6;
+        vertices[k] = left.x; vertices[k + 1] = y; vertices[k + 2] = left.z;
+        vertices[k + 3] = right.x; vertices[k + 4] = y; vertices[k + 5] = right.z;
+        if (i < trackSamples) {
+          const a = i * 2;
+          indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+        }
       }
-    }
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
+      return geometry;
+    };
 
-    const roadGeometry = new THREE.BufferGeometry();
-    roadGeometry.setAttribute("position", new THREE.BufferAttribute(roadVertices, 3));
-    roadGeometry.setIndex(roadIndices);
-    roadGeometry.computeVertexNormals();
     const road = new THREE.Mesh(
-      roadGeometry,
-      new THREE.MeshStandardMaterial({ color: 0x303038, side: THREE.DoubleSide })
+      makeRibbon(0, roadHalfWidth, 0.02),
+      new THREE.MeshStandardMaterial({ color: 0x34343b, roughness: 0.94, side: THREE.DoubleSide })
     );
     road.receiveShadow = true;
     scene.add(road);
 
-    // Светлые линии по краям асфальта
-    [leftEdge, rightEdge].forEach((points) => {
-      const edge = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(points),
-        new THREE.LineBasicMaterial({ color: 0xd7d2c8 })
-      );
-      edge.position.y = 0.08;
-      scene.add(edge);
-    });
+    // Красно-белые поребрики вдоль обеих сторон дороги
+    const curbMaterials = [
+      new THREE.MeshStandardMaterial({ color: 0xe94b45, roughness: 0.8 }),
+      new THREE.MeshStandardMaterial({ color: 0xf2eee4, roughness: 0.8 })
+    ];
+    const curbGeometry = new THREE.BoxGeometry(0.92, 0.18, 1.18);
+    for (let side of [-1, 1]) {
+      for (let i = 0; i < 220; i++) {
+        const t = i / 220;
+        const { point, tangent, normal } = getTrackFrame(t);
+        const curb = new THREE.Mesh(curbGeometry, curbMaterials[i % 2]);
+        const curbPosition = point.clone().addScaledVector(normal, side * (roadHalfWidth + 0.48));
+        curb.position.set(curbPosition.x, 0.12, curbPosition.z);
+        curb.rotation.y = Math.atan2(tangent.x, tangent.z);
+        curb.castShadow = true;
+        scene.add(curb);
+      }
+    }
 
-    // Пунктирная центральная разметка повторяет изгибы дороги
-    for (let z = -86; z < 16; z += 8) {
-      const line = new THREE.Mesh(
-        new THREE.BoxGeometry(0.18, 0.04, 3),
-        new THREE.MeshBasicMaterial({ color: 0xf5f0df })
+    // Защитные ограждения по внешним краям трассы
+    for (let side of [-1, 1]) {
+      const barrierPoints: THREE.Vector3[] = [];
+      for (let i = 0; i <= trackSamples; i++) {
+        const { point, normal } = getTrackFrame(i / trackSamples);
+        barrierPoints.push(
+          point.clone().addScaledVector(normal, side * (roadHalfWidth + 1.35)).setY(0.62)
+        );
+      }
+      const barrierCurve = new THREE.CatmullRomCurve3(barrierPoints, true);
+      const barrier = new THREE.Mesh(
+        new THREE.TubeGeometry(barrierCurve, trackSamples, 0.2, 7, true),
+        new THREE.MeshStandardMaterial({ color: 0x89949b, metalness: 0.55, roughness: 0.45 })
       );
-      line.position.set(trackCenterX(z), 0.13, z);
-      line.rotation.y = Math.atan(trackSlope(z));
-      scene.add(line);
+      barrier.castShadow = true;
+      scene.add(barrier);
+    }
+
+    // Короткая пунктирная разметка по центру асфальта
+    for (let i = 0; i < 44; i++) {
+      const t = i / 44;
+      const { point, tangent } = getTrackFrame(t);
+      const dash = new THREE.Mesh(
+        new THREE.BoxGeometry(0.16, 0.045, 1.25),
+        new THREE.MeshBasicMaterial({ color: 0xf3f0e5 })
+      );
+      dash.position.set(point.x, 0.09, point.z);
+      dash.rotation.y = Math.atan2(tangent.x, tangent.z);
+      scene.add(dash);
     }
 
     // Земля
