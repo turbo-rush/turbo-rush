@@ -35,43 +35,74 @@ function makeRibbon(curve: THREE.Curve<THREE.Vector3>, width: number, segments =
 
 function makeCar(color: number, model: number) {
   const group = new THREE.Group();
-  const paint = new THREE.MeshStandardMaterial({ color, roughness: 0.48, metalness: 0.12 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 0.8 });
-  const glass = new THREE.MeshStandardMaterial({ color: 0x173b55, roughness: 0.22, metalness: 0.15 });
-  const body = new THREE.Mesh(new THREE.BoxGeometry(2.15, 0.72, 4.15), paint);
-  body.position.y = 0.78;
-  group.add(body);
-  const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.62, 0.7, 2.05), glass);
-  cabin.position.set(0, 1.38, -0.18);
-  group.add(cabin);
-  const roof = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.12, 1.35), paint);
-  roof.position.set(0, 1.76, -0.22);
-  group.add(roof);
+  const paint = new THREE.MeshToonMaterial({ color });
+  const dark = new THREE.MeshToonMaterial({ color: 0x111722 });
+  const glass = new THREE.MeshToonMaterial({ color: 0x173b55 });
+  const rubber = new THREE.MeshToonMaterial({ color: 0x090d13 });
+  const metal = new THREE.MeshToonMaterial({ color: 0xb9c5cf });
+  const addOutlinedBox = (
+    width: number, height: number, depth: number,
+    material: THREE.Material, position: THREE.Vector3,
+    outlineScale = 1.045
+  ) => {
+    const geometry = new THREE.BoxGeometry(width, height, depth);
+    const shell = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      color: 0x10131b, side: THREE.BackSide
+    }));
+    shell.scale.setScalar(outlineScale);
+    shell.position.copy(position);
+    group.add(shell);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.copy(position);
+    group.add(mesh);
+    return mesh;
+  };
+
+  addOutlinedBox(2.15, 0.72, 4.15, paint, new THREE.Vector3(0, 0.78, 0));
+  addOutlinedBox(1.62, 0.7, 2.05, glass, new THREE.Vector3(0, 1.38, -0.18), 1.035);
+  addOutlinedBox(1.55, 0.12, 1.35, paint, new THREE.Vector3(0, 1.76, -0.22), 1.06);
+
   const wheelGeometry = new THREE.CylinderGeometry(0.43, 0.43, 0.34, 12);
+  const rimGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.355, 10);
   for (const x of [-1.12, 1.12]) for (const z of [-1.28, 1.28]) {
-    const wheel = new THREE.Mesh(wheelGeometry, dark);
+    const wheel = new THREE.Mesh(wheelGeometry, rubber);
     wheel.rotation.z = Math.PI / 2;
     wheel.position.set(x, 0.48, z);
     group.add(wheel);
+    const rim = new THREE.Mesh(rimGeometry, metal);
+    rim.rotation.z = Math.PI / 2;
+    rim.position.set(x * 1.012, 0.48, z);
+    group.add(rim);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.37, 8), dark);
+    hub.rotation.z = Math.PI / 2;
+    hub.position.set(x * 1.018, 0.48, z);
+    group.add(hub);
   }
-  const bumper = new THREE.Mesh(new THREE.BoxGeometry(2.28, 0.2, 0.28), dark);
-  bumper.position.set(0, 0.48, 2.08);
-  group.add(bumper);
-  const spoiler = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.12, 0.38), dark);
-  spoiler.position.set(0, 1.08, 1.75);
-  group.add(spoiler);
-  const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xfff1b8 });
-  for (const x of [-0.72, 0.72]) {
-    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.16, 0.08), headlightMaterial);
-    lamp.position.set(x, 0.9, -2.1);
+
+  addOutlinedBox(2.28, 0.2, 0.28, dark, new THREE.Vector3(0, 0.48, -2.08));
+  addOutlinedBox(2.35, 0.12, 0.38, dark, new THREE.Vector3(0, 1.08, 1.75));
+  for (const x of [-0.8, 0.8]) {
+    addOutlinedBox(0.12, 0.38, 0.12, dark, new THREE.Vector3(x, 0.9, 1.72), 1.08);
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.16, 0.08), new THREE.MeshBasicMaterial({ color: 0xfff1b8 }));
+    lamp.position.set(x * 0.9, 0.9, -2.1);
     group.add(lamp);
   }
-  const outline = new THREE.LineSegments(
-    new THREE.EdgesGeometry(body.geometry),
-    new THREE.LineBasicMaterial({ color: 0x10131b, linewidth: 2 })
-  );
-  outline.position.copy(body.position);
-  group.add(outline);
+
+  // Bold comic-style hood stripes and front splitter
+  const stripeColor = model % 2 === 0 ? 0xffffff : 0x171d28;
+  for (const x of [-0.36, 0.36]) {
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.025, 1.12), new THREE.MeshBasicMaterial({ color: stripeColor }));
+    stripe.position.set(x, 1.151, -1.28);
+    group.add(stripe);
+  }
+  addOutlinedBox(2.5, 0.13, 0.28, dark, new THREE.Vector3(0, 0.43, -2.18), 1.035);
+
+  // Side skirts and rear diffuser add a stronger racing silhouette
+  for (const x of [-1.08, 1.08]) {
+    addOutlinedBox(0.16, 0.2, 2.35, dark, new THREE.Vector3(x, 0.43, 0.05), 1.06);
+  }
+  addOutlinedBox(1.45, 0.12, 0.42, dark, new THREE.Vector3(0, 0.42, 2.12));
+
   group.scale.setScalar(model === 2 ? 0.94 : model === 4 ? 1.04 : 1);
   return group;
 }
