@@ -153,9 +153,14 @@ function makeCar(color: number, model: number) {
   }
 
   addOutlinedBox(2.28, 0.2, 0.28, dark, new THREE.Vector3(0, 0.48, -2.08));
-  addOutlinedBox(2.35, 0.12, 0.38, dark, new THREE.Vector3(0, 1.08, 1.75));
-  for (const x of [-0.8, 0.8]) {
-    addOutlinedBox(0.12, 0.38, 0.12, dark, new THREE.Vector3(x, 0.9, 1.72), 1.08);
+  // Each garage model gets its own rear-wing profile, from subtle street spoiler to wide track wing.
+  const wingWidths = [1.85, 2.05, 2.25, 2.48, 2.72];
+  const wingHeights = [0.98, 1.04, 1.1, 1.16, 1.22];
+  const wingWidth = wingWidths[model] ?? 2.25;
+  const wingHeight = wingHeights[model] ?? 1.1;
+  addOutlinedBox(wingWidth, 0.12, 0.38, dark, new THREE.Vector3(0, wingHeight, 1.75));
+  for (const x of [-wingWidth * 0.34, wingWidth * 0.34]) {
+    addOutlinedBox(0.12, wingHeight - 0.7, 0.12, dark, new THREE.Vector3(x, (wingHeight + 0.7) / 2, 1.72), 1.08);
 
     // Layered headlight housings with sharp LED strips.
     const housing = new THREE.Mesh(
