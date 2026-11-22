@@ -113,7 +113,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   const finishRef = useRef(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
-  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false });
+  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false });
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
@@ -349,6 +349,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     let hudTimer = 0;
     let previousPosition = 1;
     let overtakeUntil = 0;
+    let bumpUntil = 0;
     let raf = 0;
     const totalLaps = 3;
 
@@ -431,7 +432,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
             time: elapsed,
             position,
             overtake: elapsed < overtakeUntil,
-            offroad
+            offroad,
+            bumped: elapsed < bumpUntil
           });
           hudTimer = 0;
         }
@@ -452,6 +454,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         const gap = ((rivalProgress[i] - progress + 1.5) % 1) - 0.5;
         if (Math.abs(gap) < 0.012 && Math.abs(laneChange - lateral) < 2.1) {
           speed = Math.max(0, speed - dt * 0.22);
+          bumpUntil = elapsed + 0.65;
         }
         placeCar(rival, rivalProgress[i], laneChange);
       });
@@ -497,6 +500,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     </div>
     {hud.overtake && !finished && <div style={{ position: "absolute", top: 54, left: 0, right: 0, textAlign: "center", color: "#ffe05b", fontSize: 24, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033, -1px -1px 0 #152033" }}>OVERTAKE!</div>}
     {hud.offroad && !finished && <div style={{ position: "absolute", top: 84, left: 0, right: 0, textAlign: "center", color: "#ff9b42", fontSize: 18, fontWeight: 1000, fontStyle: "italic", letterSpacing: 1, textShadow: "2px 3px 0 #152033" }}>OFF TRACK! SLOW DOWN</div>}
+    {hud.bumped && !finished && <div style={{ position: "absolute", top: 112, left: 0, right: 0, textAlign: "center", color: "#ff6b52", fontSize: 22, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033" }}>BUMP!</div>}
     {finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "#07111dcc", color: "#fff", fontSize: 28, fontWeight: 900 }}>FINISH!</div>}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 7, padding: 9, background: "#0c1a2b" }}>
       <button style={buttonStyle} onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); press("left", true); }} onPointerUp={() => press("left", false)} onPointerCancel={() => press("left", false)}>◀</button>
