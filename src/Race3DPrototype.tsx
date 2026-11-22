@@ -323,6 +323,18 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     });
     let smokeCursor = 0;
 
+    // Reusable fading tire marks appear during hard cornering
+    const skidGeometry = new THREE.BoxGeometry(0.2, 0.018, 0.9);
+    const skidMarks = Array.from({ length: 36 }, () => {
+      const material = new THREE.MeshBasicMaterial({ color: 0x171b22, transparent: true, opacity: 0 });
+      const mark = new THREE.Mesh(skidGeometry, material);
+      mark.visible = false;
+      scene.add(mark);
+      return { mesh: mark, life: 0 };
+    });
+    let skidCursor = 0;
+    let skidTimer = 0;
+
     // Short comic speed streaks appear beside the road at high speed
     const speedStreaks = Array.from({ length: 14 }, (_, i) => {
       const streak = new THREE.Mesh(
@@ -415,6 +427,26 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           puff.mesh.scale.multiplyScalar(1 + dt * 1.5);
           (puff.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, puff.life / 0.55) * 0.3;
           if (puff.life <= 0) puff.mesh.visible = false;
+        });
+        skidTimer -= dt;
+        if (Math.abs(steer) > 0 && speed > 0.045 && skidTimer <= 0) {
+          for (const wheelSide of [-1, 1]) {
+            const mark = skidMarks[skidCursor];
+            skidCursor = (skidCursor + 1) % skidMarks.length;
+            mark.life = 2.2;
+            mark.mesh.visible = true;
+            const rearWheel = player.localToWorld(new THREE.Vector3(wheelSide * 0.92, 0.13, 1.48));
+            mark.mesh.position.set(rearWheel.x, 0.13, rearWheel.z);
+            mark.mesh.rotation.y = player.rotation.y;
+            (mark.mesh.material as THREE.MeshBasicMaterial).opacity = 0.42;
+          }
+          skidTimer = 0.09;
+        }
+        skidMarks.forEach(mark => {
+          if (mark.life <= 0) return;
+          mark.life -= dt;
+          (mark.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, mark.life / 2.2) * 0.42;
+          if (mark.life <= 0) mark.mesh.visible = false;
         });
         progress += speed * dt;
         if (progress >= totalLaps) {
