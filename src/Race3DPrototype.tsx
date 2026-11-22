@@ -204,6 +204,17 @@ function makeCar(color: number, model: number) {
   for (const x of [-1.08, 1.08]) {
     addOutlinedBox(0.16, 0.2, 2.35, dark, new THREE.Vector3(x, 0.43, 0.05), 1.06);
   }
+  // A distinct side graphic gives every garage car its own visual identity.
+  const sideAccentColors = [0x35e5ff, 0xffd044, 0xb58aff, 0xff526d, 0xf4f7ff];
+  const sideAccent = new THREE.MeshBasicMaterial({ color: sideAccentColors[model] ?? 0x35e5ff });
+  for (const x of [-1.105, 1.105]) {
+    const graphic = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.095, 1.18), sideAccent);
+    graphic.position.set(x, 0.91, 0.18);
+    group.add(graphic);
+    const rearMark = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.16, 0.34), sideAccent);
+    rearMark.position.set(x, 0.92, 1.18);
+    group.add(rearMark);
+  }
   addOutlinedBox(1.45, 0.12, 0.42, dark, new THREE.Vector3(0, 0.42, 2.12));
 
   // Rear light bar and twin exhausts complete the performance-car silhouette.
