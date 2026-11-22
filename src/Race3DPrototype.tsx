@@ -419,7 +419,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       camera.lookAt(player.position.x + side.x * lateral * 0.12, 0, player.position.z + side.z * lateral * 0.12);
       rivals.forEach((rival, i) => {
         if (!finishRef.current) rivalProgress[i] += dt * (0.047 + i * 0.006);
-        placeCar(rival, rivalProgress[i], (i - 1) * 2.2);
+        const laneChange = Math.sin(elapsed * (0.48 + i * 0.13) + i * 2.1) * 2.35;
+        placeCar(rival, rivalProgress[i], laneChange);
       });
       speedStreaks.forEach((streak, i) => {
         const active = speed > 0.052;
