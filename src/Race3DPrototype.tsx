@@ -226,9 +226,19 @@ function makeCar(color: number, model: number) {
     1.035
   );
 
-  // Side skirts and rear diffuser add a stronger racing silhouette
+  // Model-specific side skirts give each car a distinct lower-body profile.
+  const skirtWidths = [0.14, 0.16, 0.18, 0.2, 0.22];
+  const skirtHeights = [0.16, 0.18, 0.2, 0.22, 0.24];
+  const skirtLengths = [2.05, 2.2, 2.35, 2.5, 2.62];
   for (const x of [-1.08, 1.08]) {
-    addOutlinedBox(0.16, 0.2, 2.35, dark, new THREE.Vector3(x, 0.43, 0.05), 1.06);
+    addOutlinedBox(
+      skirtWidths[model] ?? 0.18,
+      skirtHeights[model] ?? 0.2,
+      skirtLengths[model] ?? 2.35,
+      dark,
+      new THREE.Vector3(x, 0.43, 0.05),
+      1.06
+    );
   }
   // A distinct side graphic gives every garage car its own visual identity.
   const sideAccentColors = [0x35e5ff, 0xffd044, 0xb58aff, 0xff526d, 0xf4f7ff];
