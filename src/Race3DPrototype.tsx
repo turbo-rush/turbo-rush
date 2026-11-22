@@ -154,6 +154,22 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     redCurb.position.y = 0.015;
     scene.add(redCurb);
 
+    // High-contrast comic checkered stripe marks the start and finish line
+    const finishPoint = curve.getPointAt(0);
+    const finishTangent = curve.getTangentAt(0).normalize();
+    const finishSide = new THREE.Vector3(-finishTangent.z, 0, finishTangent.x).normalize();
+    const finishYaw = Math.atan2(finishTangent.x, finishTangent.z);
+    for (let tile = 0; tile < 14; tile++) {
+      const checker = new THREE.Mesh(
+        new THREE.BoxGeometry(1.02, 0.045, 0.82),
+        new THREE.MeshBasicMaterial({ color: tile % 2 === 0 ? 0xffffff : 0x111722 })
+      );
+      const tilePosition = finishPoint.clone().addScaledVector(finishSide, -6.5 + tile * 1.0);
+      checker.position.set(tilePosition.x, 0.19, tilePosition.z);
+      checker.rotation.y = finishYaw;
+      scene.add(checker);
+    }
+
     // Continuous bright edge lines and reflective road studs improve road readability
     const edgeLineMaterial = new THREE.MeshBasicMaterial({ color: 0xf4f0df });
     const studMaterial = new THREE.MeshBasicMaterial({ color: 0xffd36b });
