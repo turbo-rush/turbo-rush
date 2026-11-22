@@ -445,6 +445,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
       const lookAhead = curve.getPointAt((t + 0.018) % 1);
       camera.position.lerp(new THREE.Vector3(player.position.x - tangent.x * 9, 25, player.position.z - tangent.z * 9 + 12), 0.075);
+      const shake = Math.max(0, (bumpUntil - elapsed) / 0.65) * 0.28;
+      camera.position.x += Math.sin(elapsed * 58) * shake;
+      camera.position.y += Math.abs(Math.cos(elapsed * 58)) * shake * 0.45;
       const targetFov = controlsRef.current.nitro && speed > 0.025 ? 57 : speed > 0.055 ? 52 : 48;
       camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
       camera.updateProjectionMatrix();
