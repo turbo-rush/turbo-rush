@@ -181,11 +181,14 @@ window.addEventListener("keydown", handleKeyDown);
     const animate = () => {
   animationId = requestAnimationFrame(animate);
 
+  
   // Плавное движение машины за рулём
-  car.position.x += (steeringTargetX - car.position.x) * // Показываем пламя при активном нитро
+  car.position.x += (steeringTargetX - car.position.x) * 0.12;
+
+  // Показываем пламя при активном нитро
   flames.forEach((flame) => {
-  flame.visible = nitroActive;
-});  
+    flame.visible = nitroActive;
+  });
 
   renderer.render(scene, camera);
 };
