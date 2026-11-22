@@ -291,29 +291,63 @@ window.addEventListener("keyup", handleKeyUp);
 
     let animationId = 0;
 
+    // Машина едет по замкнутой траектории; руль задаёт траекторию внутри дороги
+    const clock = new THREE.Clock();
+    const trackLength = trackPath.getLength();
+    let trackProgress = 0;
+    let lateralOffset = 0;
+    let currentSpeed = 0;
     const animate = () => {
-  animationId = requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
+      const delta = Math.min(clock.getDelta(), 0.05);
 
-  
-  // Плавный отклик руля и небольшой наклон кузова в повороте
-  steeringVisual += (steeringTargetX - steeringVisual) * 0.14;
-  car.rotation.y = baseHeading - steeringVisual * 0.32;
-  car.rotation.z = -steeringVisual * 0.045;
+      // Плавный разгон и ускорение от нитро
+      const targetSpeed = nitroActive ? 15 : 8;
+      currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, delta * 2.5);
+      trackProgress = (trackProgress + (currentSpeed * delta) / trackLength) % 1;
 
-  // Показываем пульсирующее пламя при активном нитро
-  flames.forEach((flame, index) => {
-    flame.visible = nitroActive;
+      // Руль плавно смещает машину к внутренней или внешней стороне поворота
+      steeringVisual += (steeringTargetX - steeringVisual) * Math.min(1, delta * 5);
+      const targetOffset = steeringVisual * 3.7;
+      lateralOffset += (targetOffset - lateralOffset) * Math.min(1, delta * 3.5);
 
-    if (nitroActive) {
-      const pulse = 1 + Math.sin(Date.now() * 0.02 + index) * 0.25;
-      flame.scale.set(1, pulse, 1);
-    } else {
-      flame.scale.set(1, 1, 1);
-    }
-  });
+      const frame = getTrackFrame(trackProgress);
+      car.position.copy(frame.point).addScaledVector(frame.normal, lateralOffset);
+      car.position.y = 0;
+      const heading = Math.atan2(frame.tangent.x, frame.tangent.z);
+      car.rotation.y = heading - steeringVisual * 0.12;
+      car.rotation.z = -steeringVisual * 0.045;
 
-  renderer.render(scene, camera);
-};
+      // Камера следует за машиной, сохраняя выбранный ракурс
+      if (cameraMode === "top") {
+        camera.position.set(car.position.x, 34, car.position.z - 1);
+        camera.lookAt(car.position.x, 0, car.position.z);
+      } else {
+        camera.position.set(
+          car.position.x - frame.tangent.x * 17,
+          19,
+          car.position.z - frame.tangent.z * 17
+        );
+        camera.lookAt(
+          car.position.x + frame.tangent.x * 7,
+          0,
+          car.position.z + frame.tangent.z * 7
+        );
+      }
+
+      // Пульсирующее пламя при активном нитро
+      flames.forEach((flame, index) => {
+        flame.visible = nitroActive;
+        if (nitroActive) {
+          const pulse = 1 + Math.sin(Date.now() * 0.02 + index) * 0.25;
+          flame.scale.set(1, pulse, 1);
+        } else {
+          flame.scale.set(1, 1, 1);
+        }
+      });
+
+      renderer.render(scene, camera);
+    };
 
     animate();
 
