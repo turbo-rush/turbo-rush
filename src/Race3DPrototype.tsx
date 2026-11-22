@@ -569,7 +569,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       camera.updateProjectionMatrix();
       camera.lookAt(player.position.x + side.x * lateral * 0.12, 0, player.position.z + side.z * lateral * 0.12);
       rivals.forEach((rival, i) => {
-        if (!finishRef.current) rivalProgress[i] += dt * (0.047 + i * 0.006);
+        if (!finishRef.current && countdownElapsed >= 3) rivalProgress[i] += dt * (0.047 + i * 0.006);
         const laneChange = Math.sin(elapsed * (0.48 + i * 0.13) + i * 2.1) * 2.35;
         const gap = ((rivalProgress[i] - progress + 1.5) % 1) - 0.5;
         if (Math.abs(gap) < 0.012 && Math.abs(laneChange - lateral) < 2.1 && elapsed >= collisionCooldown) {
