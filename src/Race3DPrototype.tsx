@@ -174,21 +174,26 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const tangent = curve.getTangentAt(t);
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
       const sideDirection = i % 2 === 0 ? 1 : -1;
-      const base = p.clone().addScaledVector(side, sideDirection * (20 + (i % 3) * 2.2));
-      const height = 5 + (i % 5) * 2.1;
-      const width = 4.2 + (i % 3) * 1.1;
-      const depth = 4.5 + (i % 2) * 1.4;
+      const base = p.clone().addScaledVector(side, sideDirection * (15.5 + (i % 3) * 1.8));
+      const height = 8 + (i % 5) * 2.4;
+      const width = 5.2 + (i % 3) * 1.2;
+      const depth = 5.2 + (i % 2) * 1.4;
       const buildingGeometry = new THREE.BoxGeometry(width, height, depth);
       const buildingMaterial = new THREE.MeshToonMaterial({ color: buildingPalette[i % buildingPalette.length] });
       const outline = new THREE.Mesh(buildingGeometry, new THREE.MeshBasicMaterial({ color: 0x172234, side: THREE.BackSide }));
       outline.scale.set(1.055, 1.035, 1.055);
+      const buildingYaw = Math.atan2(tangent.x, tangent.z);
       outline.position.set(base.x, height / 2, base.z);
+      outline.rotation.y = buildingYaw;
       scene.add(outline);
       const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
       building.position.copy(outline.position);
+      building.rotation.y = buildingYaw;
       scene.add(building);
-      const windowPanel = new THREE.Mesh(new THREE.BoxGeometry(width * 0.72, 0.42, 0.08), windowMaterial);
-      windowPanel.position.set(base.x, Math.min(height - 1, 2.4 + (i % 3) * 1.3), base.z - depth / 2 - 0.06);
+      const windowPanel = new THREE.Mesh(new THREE.BoxGeometry(width * 0.72, 0.62, 0.08), windowMaterial);
+      const roadFacing = base.clone().addScaledVector(side, -sideDirection * (depth / 2 + 0.08));
+      windowPanel.position.set(roadFacing.x, Math.min(height - 1, 2.8 + (i % 3) * 1.5), roadFacing.z);
+      windowPanel.rotation.y = buildingYaw;
       scene.add(windowPanel);
     }
 
@@ -218,7 +223,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const tangent = curve.getTangentAt(t);
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
       for (const sign of [-1, 1]) {
-        const base = p.clone().addScaledVector(side, sign * (14 + (i % 3) * 3));
+        const base = p.clone().addScaledVector(side, sign * (27 + (i % 3) * 3));
         const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.3, 1.8, 6), trunkMaterial);
         trunk.position.set(base.x, 0.8, base.z);
         scene.add(trunk);
