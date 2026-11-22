@@ -113,7 +113,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   const finishRef = useRef(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
-  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false, lapNotice: "", lapProgress: 0 });
+  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false, lapNotice: "", lapProgress: 0, nitro: 100 });
   const [finished, setFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
 
@@ -431,6 +431,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     const rivalProgress = [-0.075, -0.12, -0.165];
     let lateral = 0;
     let speed = 0;
+    let nitroCharge = 100;
     let elapsed = 0;
     let countdownElapsed = 0;
     let last = 0;
@@ -469,6 +470,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       signalLamps.forEach(lamp => {
         (lamp.material as THREE.MeshBasicMaterial).color.setHex(countdownElapsed >= 3 ? 0x45ff83 : 0xff3038);
       });
+      let nitroBoostActive = false;
       if (!finishRef.current) {
         countdownElapsed += dt;
         const countdownActive = countdownElapsed < 3;
@@ -476,7 +478,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           ? { ...controlsRef.current, left: false, right: false, throttle: false, brake: false, nitro: false }
           : controlsRef.current;
         if (!countdownActive) elapsed += dt;
-        const maxSpeed = c.nitro ? 0.115 : 0.082;
+        nitroBoostActive = c.nitro && nitroCharge > 0;
+        nitroCharge = THREE.MathUtils.clamp(nitroCharge + (nitroBoostActive ? -34 : 16) * dt, 0, 100);
+        const maxSpeed = nitroBoostActive ? 0.115 : 0.082;
         const acceleration = c.brake ? -0.2 : c.throttle ? 0.105 : -0.035;
         speed = THREE.MathUtils.clamp(speed + acceleration * dt, 0, maxSpeed);
         brakeLights.forEach(light => {
@@ -487,13 +491,13 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         const offroad = Math.abs(lateral) > 4.45;
         if (offroad) speed = Math.max(0, speed - dt * 0.075);
         nitroFlames.forEach((flame, i) => {
-          flame.visible = c.nitro && speed > 0.025;
+          flame.visible = nitroBoostActive && speed > 0.025;
           flame.scale.setScalar(flame.visible ? 0.78 + Math.random() * 0.48 : 0.001);
           flame.position.z = 2.42 + Math.random() * 0.18;
           flame.material = flame.material;
         });
         nitroTrails.forEach((trail, i) => {
-          trail.visible = c.nitro && speed > 0.025;
+          trail.visible = nitroBoostActive && speed > 0.025;
           trail.scale.z = trail.visible ? 0.75 + Math.random() * 0.65 : 0.001;
           trail.position.z = 2.85 + Math.random() * 0.45;
         });
@@ -582,7 +586,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
             offroad,
             bumped: elapsed < bumpUntil,
             lapNotice: elapsed < lapNoticeUntil ? `LAP ${previousLap}!` : "",
-            lapProgress: progress % 1
+            lapProgress: progress % 1,
+            nitro: nitroCharge
           });
           hudTimer = 0;
         }
@@ -599,7 +604,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const shake = Math.max(0, (bumpUntil - elapsed) / 0.65) * 0.28;
       camera.position.x += Math.sin(elapsed * 58) * shake;
       camera.position.y += Math.abs(Math.cos(elapsed * 58)) * shake * 0.45;
-      const targetFov = controlsRef.current.nitro && speed > 0.025 ? 57 : speed > 0.055 ? 52 : 48;
+      const targetFov = nitroBoostActive && speed > 0.025 ? 57 : speed > 0.055 ? 52 : 48;
       camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
       camera.updateProjectionMatrix();
       camera.lookAt(player.position.x + side.x * lateral * 0.12, 0, player.position.z + side.z * lateral * 0.12);
@@ -648,7 +653,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         streakPoint.addScaledVector(streakSide, sideSign * (8.8 + (i % 4) * 1.05));
         streak.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(streakTangent.x, streakTangent.z));
         streak.position.set(streakPoint.x, 0.45 + (i % 3) * 0.18, streakPoint.z);
-        streak.scale.z = controlsRef.current.nitro ? 1.8 : 1;
+        streak.scale.z = nitroBoostActive ? 1.8 : 1;
       });
       renderer.render(scene, camera);
     };
@@ -678,6 +683,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     </div>
     {countdown >= 0 && !finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none", color: countdown === 0 ? "#ffe05b" : "#fff", fontSize: countdown === 0 ? 58 : 76, fontWeight: 1000, fontStyle: "italic", letterSpacing: 3, textShadow: "4px 5px 0 #152033, -2px -2px 0 #152033" }}>{countdown === 0 ? "GO!" : countdown}</div>}
     <div style={{ position: "absolute", top: 34, left: 12, right: 12, height: 6, borderRadius: 8, overflow: "hidden", background: "rgba(10,20,32,.58)", border: "1px solid rgba(255,255,255,.55)" }}><div style={{ width: `${hud.lapProgress * 100}%`, height: "100%", borderRadius: 8, background: "linear-gradient(90deg,#20d9ff,#ffe05b)", transition: "width 120ms linear" }} /></div>
+    <div style={{ position: "absolute", top: 45, left: 12, right: 12, height: 5, borderRadius: 8, overflow: "hidden", background: "rgba(10,20,32,.58)" }}><div style={{ width: `${hud.nitro}%`, height: "100%", background: "linear-gradient(90deg,#168bff,#55f2ff)", transition: "width 120ms linear" }} /></div>
     {hud.overtake && !finished && <div style={{ position: "absolute", top: 54, left: 0, right: 0, textAlign: "center", color: "#ffe05b", fontSize: 24, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033, -1px -1px 0 #152033" }}>OVERTAKE!</div>}
     {hud.offroad && !finished && <div style={{ position: "absolute", top: 84, left: 0, right: 0, textAlign: "center", color: "#ff9b42", fontSize: 18, fontWeight: 1000, fontStyle: "italic", letterSpacing: 1, textShadow: "2px 3px 0 #152033" }}>OFF TRACK! SLOW DOWN</div>}
     {hud.bumped && !finished && <div style={{ position: "absolute", top: 112, left: 0, right: 0, textAlign: "center", color: "#ff6b52", fontSize: 22, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033" }}>BUMP!</div>}
