@@ -113,7 +113,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   const finishRef = useRef(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
-  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false, lapNotice: "" });
+  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false, lapNotice: "", lapProgress: 0 });
   const [finished, setFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
 
@@ -581,7 +581,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
             overtake: elapsed < overtakeUntil,
             offroad,
             bumped: elapsed < bumpUntil,
-            lapNotice: elapsed < lapNoticeUntil ? `LAP ${previousLap}!` : ""
+            lapNotice: elapsed < lapNoticeUntil ? `LAP ${previousLap}!` : "",
+            lapProgress: progress % 1
           });
           hudTimer = 0;
         }
@@ -676,6 +677,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       <span>LAP {hud.lap}/3</span><span>POS {hud.position}/4</span><span>{hud.speed} KM/H</span><span>{hud.time.toFixed(1)}s</span>
     </div>
     {countdown >= 0 && !finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none", color: countdown === 0 ? "#ffe05b" : "#fff", fontSize: countdown === 0 ? 58 : 76, fontWeight: 1000, fontStyle: "italic", letterSpacing: 3, textShadow: "4px 5px 0 #152033, -2px -2px 0 #152033" }}>{countdown === 0 ? "GO!" : countdown}</div>}
+    <div style={{ position: "absolute", top: 34, left: 12, right: 12, height: 6, borderRadius: 8, overflow: "hidden", background: "rgba(10,20,32,.58)", border: "1px solid rgba(255,255,255,.55)" }}><div style={{ width: `${hud.lapProgress * 100}%`, height: "100%", borderRadius: 8, background: "linear-gradient(90deg,#20d9ff,#ffe05b)", transition: "width 120ms linear" }} /></div>
     {hud.overtake && !finished && <div style={{ position: "absolute", top: 54, left: 0, right: 0, textAlign: "center", color: "#ffe05b", fontSize: 24, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033, -1px -1px 0 #152033" }}>OVERTAKE!</div>}
     {hud.offroad && !finished && <div style={{ position: "absolute", top: 84, left: 0, right: 0, textAlign: "center", color: "#ff9b42", fontSize: 18, fontWeight: 1000, fontStyle: "italic", letterSpacing: 1, textShadow: "2px 3px 0 #152033" }}>OFF TRACK! SLOW DOWN</div>}
     {hud.bumped && !finished && <div style={{ position: "absolute", top: 112, left: 0, right: 0, textAlign: "center", color: "#ff6b52", fontSize: 22, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033" }}>BUMP!</div>}
