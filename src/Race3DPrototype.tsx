@@ -154,6 +154,31 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     redCurb.position.y = 0.015;
     scene.add(redCurb);
 
+    // Continuous bright edge lines and reflective road studs improve road readability
+    const edgeLineMaterial = new THREE.MeshBasicMaterial({ color: 0xf4f0df });
+    const studMaterial = new THREE.MeshBasicMaterial({ color: 0xffd36b });
+    for (let i = 0; i < 120; i++) {
+      const t = i / 120;
+      const p = curve.getPointAt(t);
+      const tangent = curve.getTangentAt(t).normalize();
+      const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
+      const yaw = Math.atan2(tangent.x, tangent.z);
+      for (const edge of [-1, 1]) {
+        const line = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.035, 1.15), edgeLineMaterial);
+        const linePosition = p.clone().addScaledVector(side, edge * 7.05);
+        line.position.set(linePosition.x, 0.17, linePosition.z);
+        line.rotation.y = yaw;
+        scene.add(line);
+        if (i % 4 === 0) {
+          const stud = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.07, 0.16), studMaterial);
+          const studPosition = p.clone().addScaledVector(side, edge * 7.55);
+          stud.position.set(studPosition.x, 0.19, studPosition.z);
+          stud.rotation.y = yaw;
+          scene.add(stud);
+        }
+      }
+    }
+
     const dashMaterial = new THREE.MeshBasicMaterial({ color: 0xf5f1e8 });
     for (let i = 0; i < 90; i++) {
       const t = i / 90;
