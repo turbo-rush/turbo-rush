@@ -39,7 +39,7 @@ if (cameraMode === "top") {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
     mount.appendChild(renderer.domElement);
 
     const ambient = new THREE.HemisphereLight(0xffffff, 0x445566, 2);
@@ -105,7 +105,7 @@ if (cameraMode === "top") {
       makeRibbon(0, roadHalfWidth, 0.02),
       new THREE.MeshStandardMaterial({ color: 0x34343b, roughness: 0.94, side: THREE.DoubleSide })
     );
-    road.receiveShadow = true;
+    road.receiveShadow = false;
     scene.add(road);
 
     // Красно-белые поребрики вдоль обеих сторон дороги
@@ -114,18 +114,28 @@ if (cameraMode === "top") {
       new THREE.MeshStandardMaterial({ color: 0xf2eee4, roughness: 0.8 })
     ];
     const curbGeometry = new THREE.BoxGeometry(0.92, 0.18, 1.18);
+    const curbInstances = curbMaterials.map((material) => {
+      const mesh = new THREE.InstancedMesh(curbGeometry, material, 220);
+      mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+      scene.add(mesh);
+      return mesh;
+    });
+    const curbDummy = new THREE.Object3D();
     for (let side of [-1, 1]) {
       for (let i = 0; i < 220; i++) {
         const t = i / 220;
         const { point, tangent, normal } = getTrackFrame(t);
-        const curb = new THREE.Mesh(curbGeometry, curbMaterials[i % 2]);
         const curbPosition = point.clone().addScaledVector(normal, side * (roadHalfWidth + 0.48));
-        curb.position.set(curbPosition.x, 0.12, curbPosition.z);
-        curb.rotation.y = Math.atan2(tangent.x, tangent.z);
-        curb.castShadow = true;
-        scene.add(curb);
+        curbDummy.position.set(curbPosition.x, 0.12, curbPosition.z);
+        curbDummy.rotation.set(0, Math.atan2(tangent.x, tangent.z), 0);
+        curbDummy.updateMatrix();
+        curbInstances[i % 2].setMatrixAt(i, curbDummy.matrix);
       }
     }
+    curbInstances.forEach((mesh) => {
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.computeBoundingSphere();
+    });
 
     // Защитные ограждения по внешним краям трассы
     for (let side of [-1, 1]) {
@@ -256,7 +266,8 @@ let steeringVisual = 0;
 
 const handleSteer = (event: Event) => {
   const customEvent = event as CustomEvent<number>;
-  steeringTargetX = THREE.MathUtils.clamp(customEvent.detail / 4, -1, 1);
+  // Positive pointer movement means right; invert to match the driver's perspective.
+  steeringTargetX = THREE.MathUtils.clamp(-customEvent.detail / 4, -1, 1);
 };
 
 window.addEventListener("turbo-steer", handleSteer);
@@ -302,14 +313,17 @@ window.addEventListener("keyup", handleKeyUp);
       const delta = Math.min(clock.getDelta(), 0.05);
 
       // Плавный разгон и ускорение от нитро
-      const targetSpeed = nitroActive ? 15 : 8;
-      currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, delta * 2.5);
+      const targetSpeed = nitroActive ? 12 : 6.5;
+      const speedBlend = 1 - Math.exp(-delta * 2.2);
+      currentSpeed += (targetSpeed - currentSpeed) * speedBlend;
       trackProgress = (trackProgress + (currentSpeed * delta) / trackLength) % 1;
 
-      // Руль плавно смещает машину к внутренней или внешней стороне поворота
-      steeringVisual += (steeringTargetX - steeringVisual) * Math.min(1, delta * 5);
-      const targetOffset = steeringVisual * 3.7;
-      lateralOffset += (targetOffset - lateralOffset) * Math.min(1, delta * 3.5);
+      // Аналоговое руление с мягким возвратом колёс в центр
+      const steeringBlend = 1 - Math.exp(-delta * 7);
+      steeringVisual += (steeringTargetX - steeringVisual) * steeringBlend;
+      const targetOffset = steeringVisual * 2.8;
+      const offsetBlend = 1 - Math.exp(-delta * 2.8);
+      lateralOffset += (targetOffset - lateralOffset) * offsetBlend;
 
       const frame = getTrackFrame(trackProgress);
       car.position.copy(frame.point).addScaledVector(frame.normal, lateralOffset);
@@ -416,13 +430,13 @@ return (
         TRACK MAP
       </div>
       <svg viewBox="0 0 100 112" width="100%" height="112" aria-label="Мини-карта трассы">
-        <path d="M 48 4 C 18 17, 78 27, 49 43 S 18 66, 49 78 S 82 96, 52 108"
-          fill="none" stroke="#111923" strokeWidth="19" strokeLinecap="round" />
-        <path d="M 48 4 C 18 17, 78 27, 49 43 S 18 66, 49 78 S 82 96, 52 108"
-          fill="none" stroke="#d8d2c8" strokeWidth="1.2" strokeLinecap="round" />
-        <path d="M 48 4 C 18 17, 78 27, 49 43 S 18 66, 49 78 S 82 96, 52 108"
-          fill="none" stroke="#f4f0df" strokeWidth="1" strokeDasharray="3 4" />
-        <circle cx="49" cy="78" r="4.5" fill="#36c5f0" stroke="#ffffff" strokeWidth="1.5" />
+        <path d="M 50 7 C 69 7 83 16 84 31 C 85 44 72 49 62 51 C 48 54 37 48 27 56 C 15 66 19 84 33 94 C 46 103 69 102 78 91 C 88 79 79 68 68 66"
+          fill="none" stroke="#080e16" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M 50 7 C 69 7 83 16 84 31 C 85 44 72 49 62 51 C 48 54 37 48 27 56 C 15 66 19 84 33 94 C 46 103 69 102 78 91 C 88 79 79 68 68 66"
+          fill="none" stroke="#e9e4d8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M 50 7 C 69 7 83 16 84 31 C 85 44 72 49 62 51 C 48 54 37 48 27 56 C 15 66 19 84 33 94 C 46 103 69 102 78 91 C 88 79 79 68 68 66"
+          fill="none" stroke="#f5f0e5" strokeWidth="1" strokeDasharray="3 4" />
+        <circle cx="50" cy="7" r="4.5" fill="#36c5f0" stroke="#ffffff" strokeWidth="1.5" />
       </svg>
     </div>
 
