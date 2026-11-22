@@ -449,6 +449,10 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       rivals.forEach((rival, i) => {
         if (!finishRef.current) rivalProgress[i] += dt * (0.047 + i * 0.006);
         const laneChange = Math.sin(elapsed * (0.48 + i * 0.13) + i * 2.1) * 2.35;
+        const gap = ((rivalProgress[i] - progress + 1.5) % 1) - 0.5;
+        if (Math.abs(gap) < 0.012 && Math.abs(laneChange - lateral) < 2.1) {
+          speed = Math.max(0, speed - dt * 0.22);
+        }
         placeCar(rival, rivalProgress[i], laneChange);
       });
       speedStreaks.forEach((streak, i) => {
