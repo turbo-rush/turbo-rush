@@ -293,6 +293,16 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
 
     const player = makeCar(carColor, carModel);
     scene.add(player);
+    // Bright brake lights make braking readable to the player and rivals
+    const brakeLights = [-0.72, 0.72].map(x => {
+      const light = new THREE.Mesh(
+        new THREE.BoxGeometry(0.48, 0.17, 0.07),
+        new THREE.MeshBasicMaterial({ color: 0x641b25 })
+      );
+      light.position.set(x, 0.91, 2.105);
+      player.add(light);
+      return light;
+    });
     const nitroFlames = [-0.62, 0.62].map(x => {
       const flame = new THREE.Mesh(
         new THREE.ConeGeometry(0.22, 1.05, 7),
@@ -404,6 +414,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         const maxSpeed = c.nitro ? 0.115 : 0.082;
         const acceleration = c.brake ? -0.2 : c.throttle ? 0.105 : -0.035;
         speed = THREE.MathUtils.clamp(speed + acceleration * dt, 0, maxSpeed);
+        brakeLights.forEach(light => {
+          (light.material as THREE.MeshBasicMaterial).color.setHex(c.brake ? 0xff263f : 0x641b25);
+        });
         const steer = (c.right ? 1 : 0) - (c.left ? 1 : 0);
         lateral = THREE.MathUtils.clamp(lateral + steer * (0.9 + speed * 8) * dt, -5.2, 5.2);
         const offroad = Math.abs(lateral) > 4.45;
