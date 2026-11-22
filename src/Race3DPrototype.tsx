@@ -333,6 +333,19 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     });
     let smokeCursor = 0;
 
+    // Small dirt puffs kick up when the player leaves the asphalt
+    const dustParticles = Array.from({ length: 12 }, () => {
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 6, 5),
+        new THREE.MeshBasicMaterial({ color: 0xb58a55, transparent: true, opacity: 0 })
+      );
+      mesh.visible = false;
+      scene.add(mesh);
+      return { mesh, velocity: new THREE.Vector3(), life: 0 };
+    });
+    let dustCursor = 0;
+    let dustTimer = 0;
+
     // Reusable fading tire marks appear during hard cornering
     const skidGeometry = new THREE.BoxGeometry(0.2, 0.018, 0.9);
     const skidMarks = Array.from({ length: 36 }, () => {
@@ -450,6 +463,28 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           puff.mesh.scale.multiplyScalar(1 + dt * 1.5);
           (puff.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, puff.life / 0.55) * 0.3;
           if (puff.life <= 0) puff.mesh.visible = false;
+        });
+        dustTimer -= dt;
+        if (offroad && speed > 0.018 && dustTimer <= 0) {
+          const dust = dustParticles[dustCursor];
+          dustCursor = (dustCursor + 1) % dustParticles.length;
+          dust.life = 0.7;
+          dust.mesh.visible = true;
+          const rearWheel = player.localToWorld(new THREE.Vector3((Math.random() - 0.5) * 1.8, 0.28, 1.55));
+          dust.mesh.position.copy(rearWheel);
+          dust.mesh.scale.setScalar(0.65 + Math.random() * 0.55);
+          dust.velocity.set((Math.random() - 0.5) * 1.8, 0.7 + Math.random() * 1.2, 0.4 + Math.random() * 1.2);
+          (dust.mesh.material as THREE.MeshBasicMaterial).opacity = 0.48;
+          dustTimer = 0.075;
+        }
+        dustParticles.forEach(dust => {
+          if (dust.life <= 0) return;
+          dust.life -= dt;
+          dust.velocity.y -= dt * 1.8;
+          dust.mesh.position.addScaledVector(dust.velocity, dt);
+          dust.mesh.scale.multiplyScalar(1 + dt * 0.8);
+          (dust.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, dust.life / 0.7) * 0.48;
+          if (dust.life <= 0) dust.mesh.visible = false;
         });
         skidTimer -= dt;
         if (Math.abs(steer) > 0 && speed > 0.045 && skidTimer <= 0) {
