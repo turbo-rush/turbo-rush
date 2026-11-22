@@ -133,6 +133,25 @@ function makeCar(color: number, model: number) {
     group.add(caliper);
   }
 
+  // Sculpted fender arches frame each tire with a bold comic outline.
+  for (const x of [-1.12, 1.12]) for (const z of [-1.28, 1.28]) {
+    const archOutline = new THREE.Mesh(
+      new THREE.TorusGeometry(0.53, 0.13, 8, 20, Math.PI),
+      new THREE.MeshBasicMaterial({ color: 0x10131b })
+    );
+    archOutline.rotation.y = Math.PI / 2;
+    archOutline.position.set(x * 1.035, 0.48, z);
+    group.add(archOutline);
+
+    const archPaint = new THREE.Mesh(
+      new THREE.TorusGeometry(0.53, 0.085, 8, 20, Math.PI),
+      paint
+    );
+    archPaint.rotation.y = Math.PI / 2;
+    archPaint.position.set(x * 1.065, 0.48, z);
+    group.add(archPaint);
+  }
+
   addOutlinedBox(2.28, 0.2, 0.28, dark, new THREE.Vector3(0, 0.48, -2.08));
   addOutlinedBox(2.35, 0.12, 0.38, dark, new THREE.Vector3(0, 1.08, 1.75));
   for (const x of [-0.8, 0.8]) {
