@@ -185,9 +185,16 @@ window.addEventListener("keydown", handleKeyDown);
   // Плавное движение машины за рулём
   car.position.x += (steeringTargetX - car.position.x) * 0.12;
 
-  // Показываем пламя при активном нитро
-  flames.forEach((flame) => {
+  // Показываем пульсирующее пламя при активном нитро
+  flames.forEach((flame, index) => {
     flame.visible = nitroActive;
+
+    if (nitroActive) {
+      const pulse = 1 + Math.sin(Date.now() * 0.02 + index) * 0.25;
+      flame.scale.set(1, pulse, 1);
+    } else {
+      flame.scale.set(1, 1, 1);
+    }
   });
 
   renderer.render(scene, camera);
@@ -205,7 +212,8 @@ window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", resize);
 
     return () => {
-  window.removeEventListener("turbo-steer", handleSteer); 
+  window.removeEventListener("turbo-steer", handleSteer);
+  window.removeEventListener("turbo-nitro", handleNitro);
   cancelAnimationFrame(animationId);
   window.removeEventListener("keydown", handleKeyDown);
   window.removeEventListener("resize", resize);
