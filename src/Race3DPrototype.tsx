@@ -331,6 +331,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     });
 
     let progress = 0;
+    const rivalProgress = [-0.075, -0.12, -0.165];
     let lateral = 0;
     let speed = 0;
     let elapsed = 0;
@@ -416,7 +417,10 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
       camera.updateProjectionMatrix();
       camera.lookAt(player.position.x + side.x * lateral * 0.12, 0, player.position.z + side.z * lateral * 0.12);
-      rivals.forEach((rival, i) => placeCar(rival, t + 0.96 - i * 0.03, (i - 1) * 2.2));
+      rivals.forEach((rival, i) => {
+        if (!finishRef.current) rivalProgress[i] += dt * (0.047 + i * 0.006);
+        placeCar(rival, rivalProgress[i], (i - 1) * 2.2);
+      });
       speedStreaks.forEach((streak, i) => {
         const active = speed > 0.052;
         streak.visible = active;
