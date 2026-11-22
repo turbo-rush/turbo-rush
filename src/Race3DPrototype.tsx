@@ -165,6 +165,51 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       scene.add(dash);
     }
 
+    // Low-poly city blocks beyond the roadside, kept lightweight for mobile
+    const buildingPalette = [0x52647e, 0x394c68, 0x7a5368, 0x566b72, 0x665b82];
+    const windowMaterial = new THREE.MeshBasicMaterial({ color: 0xffd88a });
+    for (let i = 0; i < 22; i++) {
+      const t = (i / 22 + 0.015) % 1;
+      const p = curve.getPointAt(t);
+      const tangent = curve.getTangentAt(t);
+      const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
+      const sign = i % 2 === 0 ? 1 : -1;
+      const base = p.clone().addScaledVector(side, sign * (27 + (i % 4) * 3));
+      const height = 5 + (i % 5) * 2.1;
+      const width = 4.2 + (i % 3) * 1.1;
+      const depth = 4.5 + (i % 2) * 1.4;
+      const buildingGeometry = new THREE.BoxGeometry(width, height, depth);
+      const buildingMaterial = new THREE.MeshToonMaterial({ color: buildingPalette[i % buildingPalette.length] });
+      const outline = new THREE.Mesh(buildingGeometry, new THREE.MeshBasicMaterial({ color: 0x172234, side: THREE.BackSide }));
+      outline.scale.set(1.055, 1.035, 1.055);
+      outline.position.set(base.x, height / 2, base.z);
+      scene.add(outline);
+      const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+      building.position.copy(outline.position);
+      scene.add(building);
+      const sign = new THREE.Mesh(new THREE.BoxGeometry(width * 0.72, 0.42, 0.08), windowMaterial);
+      sign.position.set(base.x, Math.min(height - 1, 2.4 + (i % 3) * 1.3), base.z - depth / 2 - 0.06);
+      scene.add(sign);
+    }
+
+    const lampMaterial = new THREE.MeshBasicMaterial({ color: 0xffe6a6 });
+    const poleMaterial = new THREE.MeshToonMaterial({ color: 0x26364b });
+    for (let i = 0; i < 18; i++) {
+      const p = curve.getPointAt(i / 18);
+      const tangent = curve.getTangentAt(i / 18);
+      const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
+      const base = p.clone().addScaledVector(side, i % 2 === 0 ? 10.5 : -10.5);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 4.2, 5), poleMaterial);
+      pole.position.set(base.x, 2.1, base.z);
+      scene.add(pole);
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.08), poleMaterial);
+      arm.position.set(base.x + 0.38, 4.15, base.z);
+      scene.add(arm);
+      const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.14, 0.28), lampMaterial);
+      lamp.position.set(base.x + 0.78, 4.08, base.z);
+      scene.add(lamp);
+    }
+
     const treeMaterial = new THREE.MeshStandardMaterial({ color: 0x267844, roughness: 1 });
     const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x76513a });
     for (let i = 0; i < 34; i++) {
