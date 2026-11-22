@@ -182,7 +182,10 @@ window.addEventListener("keydown", handleKeyDown);
   animationId = requestAnimationFrame(animate);
 
   // Плавное движение машины за рулём
-  car.position.x += (steeringTargetX - car.position.x) * 0.12;
+  car.position.x += (steeringTargetX - car.position.x) * // Показываем пламя при активном нитро
+  flames.forEach((flame) => {
+  flame.visible = nitroActive;
+});  
 
   renderer.render(scene, camera);
 };
