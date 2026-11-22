@@ -198,7 +198,17 @@ function makeCar(color: number, model: number) {
     stripe.position.set(x, 1.151, -1.28);
     group.add(stripe);
   }
-  addOutlinedBox(2.5, 0.13, 0.28, dark, new THREE.Vector3(0, 0.43, -2.18), 1.035);
+  // Model-specific front splitters: wider and deeper on higher-tier cars.
+  const splitterWidths = [2.18, 2.32, 2.48, 2.66, 2.82];
+  const splitterDepths = [0.22, 0.25, 0.28, 0.32, 0.36];
+  addOutlinedBox(
+    splitterWidths[model] ?? 2.48,
+    0.13,
+    splitterDepths[model] ?? 0.28,
+    dark,
+    new THREE.Vector3(0, 0.43, -2.18),
+    1.035
+  );
 
   // Side skirts and rear diffuser add a stronger racing silhouette
   for (const x of [-1.08, 1.08]) {
