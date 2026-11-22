@@ -54,6 +54,8 @@ export default function RaceCore({ carColor, carModel, onFinish }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controls = useRef({ left: false, right: false, throttle: true, brake: false, nitro: false });
   const finishRef = useRef(false);
+  const onFinishRef = useRef(onFinish);
+  onFinishRef.current = onFinish;
   const [hud, setHud] = useState({ lap: 1, speed: 0, position: 4, time: 0 });
   const [finished, setFinished] = useState(false);
 
@@ -66,9 +68,9 @@ export default function RaceCore({ carColor, carModel, onFinish }: Props) {
     let heading = Math.atan2(tangentAt(0).y, tangentAt(0).x);
     let damage = 0;
     const ai: Driver[] = [
-      { progress: 0.002, lane: -25, speed: 0.00102, color: "#ffcc45", isPlayer: false, name: "VOLT" },
-      { progress: 0.995, lane: 25, speed: 0.00098, color: "#fa5570", isPlayer: false, name: "PHANTOM" },
-      { progress: 0.988, lane: -5, speed: 0.00094, color: "#a88aff", isPlayer: false, name: "NOVA" }
+      { progress: 0.002, lane: -25, speed: 0.00245, color: "#ffcc45", isPlayer: false, name: "VOLT" },
+      { progress: 0.995, lane: 25, speed: 0.0023, color: "#fa5570", isPlayer: false, name: "PHANTOM" },
+      { progress: 0.988, lane: -5, speed: 0.00215, color: "#a88aff", isPlayer: false, name: "NOVA" }
     ];
     const player: Driver = { progress: 0, lane: 0, speed: 0, color: "#" + carColor.toString(16).padStart(6, "0"), isPlayer: true, name: "YOU" };
     const resize = () => {
@@ -163,14 +165,14 @@ export default function RaceCore({ carColor, carModel, onFinish }: Props) {
         const offRoad = Math.abs(lateral) > TRACK_WIDTH / 2 - 17;
         if (offRoad) { speed *= Math.exp(-2.7 * dt); damage = Math.min(100, damage + dt * 2); }
         const trackMetersPerLap = 1;
-        progress = (progress + (speed * dt) / 1700) % 1;
+        progress += (speed * dt) / 1700;
         player.progress = progress;
-        ai.forEach(d => { d.progress = (d.progress + d.speed * (dt * 60)) % 1; });
-        const lap = Math.min(TOTAL_LAPS, Math.floor(elapsed > 0 ? progress : 0) + 1);
+        ai.forEach(d => { d.progress += d.speed * (dt * 60); });
+        const lap = Math.min(TOTAL_LAPS, Math.floor(progress) + 1);
         const place = 1 + ai.filter(d => d.progress > progress).length;
         hudClock += dt;
         if (hudClock > 0.12) {
-          setHud({ lap: Math.min(TOTAL_LAPS, Math.floor(elapsed / 32) + 1), speed: Math.round(speed * 0.72), position: place, time: elapsed });
+          setHud({ lap, speed: Math.round(speed * 0.72), position: place, time: elapsed });
           hudClock = 0;
         }
         if (elapsed >= 96) {
@@ -183,7 +185,7 @@ export default function RaceCore({ carColor, carModel, onFinish }: Props) {
     };
     raf = requestAnimationFrame(frame);
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
-  }, [carColor, carModel, onFinish]);
+  }, [carColor, carModel]);
 
   const press = (key: keyof typeof controls.current, value: boolean) => { controls.current[key] = value; };
   const controlStyle: React.CSSProperties = { border: "1px solid #49627b", borderRadius: 14, background: "rgba(12,27,44,.92)", color: "#eaf4ff", fontWeight: 900, fontSize: 17, minHeight: 52, touchAction: "none", userSelect: "none" };
