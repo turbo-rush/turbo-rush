@@ -564,7 +564,7 @@ export default function App() {
     </header>
 
     {race ? <section className="race-panel">
-      <div className="race-head"><b>STREET RUN · CITY 01</b><span>Свайп / ← → · SPACE — нитро</span></div>
+      <div className="race-head"><b>STREET RUN · CITY 01</b><span>Газ · тормоз · руль · нитро</span></div>
       <RaceCore
         carColor={cars[selected].color}
         carModel={selected}
@@ -576,11 +576,37 @@ export default function App() {
           setRace(false);
         }}
       />
-            </div>
-            {isSelected && <span className="selected-label">ВЫБРАНА</span>}
-          </div>
-
-          <div className="garage-card-info">
+    </section> : <>
+      <section className="hero">
+        <div className="hero-copy"><div className="eyebrow">YOUR NEXT RACE STARTS NOW</div><h1>OWN THE<br/><em>STREETS.</em></h1><p>Гоняй. Улучшай. Бросай вызов друзьям.</p></div>
+        <div className="car-art"><div className="car-glow"></div><div className="car-shape">▰</div><div className="speed-lines"></div></div>
+        <div className="hero-stats"><span>🏁 {races} гонок</span><span>🏆 Новичок</span><span>🚘 {cars[selected].name}</span></div>
+        <button className="primary" onClick={startRace}>НАЧАТЬ ГОНКУ <span>→</span></button>
+        {result !== null && <div className="result">Финиш! Результат: <b>{result}</b> · Награда начислена</div>}
+      </section>
+      <section className="quick-grid">
+        <button onClick={() => setTab("garage")}><span>🚗</span><b>ГАРАЖ</b><small>Машины и тюнинг</small></button>
+        <button onClick={() => setTab("rating")}><span>🏆</span><b>РЕЙТИНГ</b><small>Лучшие гонщики</small></button>
+        <button onClick={() => setTab("shop")}><span>🛒</span><b>МАГАЗИН</b><small>Бонусы и наборы</small></button>
+      </section>
+      {tab === "garage" && <section className="garage-section">
+        <div className="garage-heading">
+          <div><span className="garage-eyebrow">YOUR COLLECTION</span><h2>ТВОЙ ГАРАЖ</h2></div>
+          <span className="garage-count">{owned.length} / 5</span>
+        </div>
+        <div className="garage-grid">
+          {cars.map((car, i) => {
+            const isOwned = owned.includes(i);
+            const isSelected = selected === i;
+            return (
+              <article className={`garage-card ${isSelected ? "selected" : ""}`} key={car.name}>
+                <div className="garage-car-stage">
+                  <div className="garage-car" style={{ "--car-color": `#${car.color.toString(16).padStart(6, "0")}` } as React.CSSProperties}>
+                    <div className="car-wheel wheel-left-top" /><div className="car-wheel wheel-right-top" />
+                    <div className="car-wheel wheel-left-bottom" /><div className="car-wheel wheel-right-bottom" />
+                    <div className="car-body"><div className="car-window front-window" /><div className="car-window rear-window" /><div className="car-light light-top" /><div className="car-light light-bottom" /></div>
+                  </div>
+                            <div className="garage-card-info">
             <h3>{car.name}</h3>
             <span>{car.className}</span>
             <div className="speed-label">SPEED {car.speed}/5</div>
