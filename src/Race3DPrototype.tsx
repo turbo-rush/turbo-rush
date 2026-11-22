@@ -350,6 +350,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     let previousPosition = 1;
     let overtakeUntil = 0;
     let bumpUntil = 0;
+    let collisionCooldown = 0;
     let raf = 0;
     const totalLaps = 3;
 
@@ -452,9 +453,11 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         if (!finishRef.current) rivalProgress[i] += dt * (0.047 + i * 0.006);
         const laneChange = Math.sin(elapsed * (0.48 + i * 0.13) + i * 2.1) * 2.35;
         const gap = ((rivalProgress[i] - progress + 1.5) % 1) - 0.5;
-        if (Math.abs(gap) < 0.012 && Math.abs(laneChange - lateral) < 2.1) {
-          speed = Math.max(0, speed - dt * 0.22);
+        if (Math.abs(gap) < 0.012 && Math.abs(laneChange - lateral) < 2.1 && elapsed >= collisionCooldown) {
+          speed = Math.max(0, speed - 0.018);
+          lateral = THREE.MathUtils.clamp(lateral + (lateral <= laneChange ? -0.65 : 0.65), -5.2, 5.2);
           bumpUntil = elapsed + 0.65;
+          collisionCooldown = elapsed + 0.7;
         }
         placeCar(rival, rivalProgress[i], laneChange);
       });
