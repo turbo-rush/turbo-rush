@@ -156,9 +156,34 @@ function makeCar(color: number, model: number) {
   addOutlinedBox(2.35, 0.12, 0.38, dark, new THREE.Vector3(0, 1.08, 1.75));
   for (const x of [-0.8, 0.8]) {
     addOutlinedBox(0.12, 0.38, 0.12, dark, new THREE.Vector3(x, 0.9, 1.72), 1.08);
-    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.16, 0.08), new THREE.MeshBasicMaterial({ color: 0xfff1b8 }));
-    lamp.position.set(x * 0.9, 0.9, -2.1);
+
+    // Layered headlight housings with sharp LED strips.
+    const housing = new THREE.Mesh(
+      new THREE.BoxGeometry(0.58, 0.22, 0.12),
+      new THREE.MeshToonMaterial({ color: 0x101a29 })
+    );
+    housing.position.set(x * 0.9, 0.91, -2.13);
+    group.add(housing);
+
+    const lamp = new THREE.Mesh(
+      new THREE.BoxGeometry(0.46, 0.095, 0.055),
+      new THREE.MeshBasicMaterial({ color: 0xfff4cf })
+    );
+    lamp.position.set(x * 0.9, 0.94, -2.205);
     group.add(lamp);
+
+    const ledAccent = new THREE.Mesh(
+      new THREE.BoxGeometry(0.34, 0.035, 0.035),
+      new THREE.MeshBasicMaterial({ color: 0x54eaff })
+    );
+    ledAccent.position.set(x * 0.9, 0.855, -2.21);
+    group.add(ledAccent);
+  }
+
+  // Wide central grille and sculpted lower air intakes give the nose a race-ready face.
+  addOutlinedBox(0.92, 0.25, 0.1, dark, new THREE.Vector3(0, 0.68, -2.16), 1.08);
+  for (const x of [-0.78, 0.78]) {
+    addOutlinedBox(0.34, 0.2, 0.1, dark, new THREE.Vector3(x, 0.53, -2.17), 1.06);
   }
 
   // Bold comic-style hood stripes and front splitter
