@@ -201,6 +201,28 @@ function makeCar(color: number, model: number) {
   }
   addOutlinedBox(1.45, 0.12, 0.42, dark, new THREE.Vector3(0, 0.42, 2.12));
 
+  // Rear light bar and twin exhausts complete the performance-car silhouette.
+  addOutlinedBox(1.72, 0.2, 0.12, dark, new THREE.Vector3(0, 0.99, 2.13), 1.06);
+  for (const x of [-0.66, 0.66]) {
+    const tailLamp = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.095, 0.055),
+      new THREE.MeshBasicMaterial({ color: 0xff334d })
+    );
+    tailLamp.position.set(x, 1.0, 2.205);
+    group.add(tailLamp);
+
+    const exhaust = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.105, 0.13, 0.2, 10),
+      new THREE.MeshStandardMaterial({ color: 0x9ba8b5, metalness: 0.82, roughness: 0.28 })
+    );
+    exhaust.rotation.x = Math.PI / 2;
+    exhaust.position.set(x * 1.22, 0.43, 2.28);
+    group.add(exhaust);
+  }
+  for (const x of [-0.48, -0.16, 0.16, 0.48]) {
+    addOutlinedBox(0.075, 0.22, 0.3, dark, new THREE.Vector3(x, 0.39, 2.16), 1.04);
+  }
+
   group.scale.setScalar(model === 2 ? 0.94 : model === 4 ? 1.04 : 1);
   return group;
 }
