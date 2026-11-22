@@ -430,7 +430,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
             lap: Math.min(totalLaps, Math.floor(progress) + 1),
             time: elapsed,
             position,
-            overtake: elapsed < overtakeUntil
+            overtake: elapsed < overtakeUntil,
+            offroad
           });
           hudTimer = 0;
         }
