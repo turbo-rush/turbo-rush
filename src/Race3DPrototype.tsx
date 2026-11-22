@@ -197,6 +197,39 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       scene.add(windowPanel);
     }
 
+    // Bright roadside comic billboards make the city read clearly from the racing camera
+    const billboardColors = [0x19d9ff, 0xff4f91, 0xffc83d, 0x9b78ff];
+    for (let i = 0; i < 12; i++) {
+      const t = (i / 12 + 0.04) % 1;
+      const p = curve.getPointAt(t);
+      const tangent = curve.getTangentAt(t);
+      const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
+      const sideDirection = i % 2 === 0 ? 1 : -1;
+      const base = p.clone().addScaledVector(side, sideDirection * 12.2);
+      const yaw = Math.atan2(tangent.x, tangent.z);
+      const frame = new THREE.Mesh(
+        new THREE.BoxGeometry(3.5, 1.9, 0.22),
+        new THREE.MeshBasicMaterial({ color: 0x111b2b })
+      );
+      frame.position.set(base.x, 4.1, base.z);
+      frame.rotation.y = yaw;
+      scene.add(frame);
+      const panel = new THREE.Mesh(
+        new THREE.BoxGeometry(3.12, 1.52, 0.08),
+        new THREE.MeshBasicMaterial({ color: billboardColors[i % billboardColors.length] })
+      );
+      panel.position.set(base.x, 4.1, base.z - 0.14);
+      panel.rotation.y = yaw;
+      scene.add(panel);
+      const accent = new THREE.Mesh(
+        new THREE.BoxGeometry(2.25, 0.12, 0.04),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      accent.position.set(base.x, 3.72, base.z - 0.2);
+      accent.rotation.y = yaw;
+      scene.add(accent);
+    }
+
     const lampMaterial = new THREE.MeshBasicMaterial({ color: 0xffe6a6 });
     const poleMaterial = new THREE.MeshToonMaterial({ color: 0x26364b });
     for (let i = 0; i < 18; i++) {
