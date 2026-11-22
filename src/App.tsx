@@ -606,7 +606,10 @@ export default function App() {
                     <div className="car-wheel wheel-left-bottom" /><div className="car-wheel wheel-right-bottom" />
                     <div className="car-body"><div className="car-window front-window" /><div className="car-window rear-window" /><div className="car-light light-top" /><div className="car-light light-bottom" /></div>
                   </div>
-                            <div className="garage-card-info">
+                  </div>
+                  {isSelected && <span className="selected-label">ВЫБРАНА</span>}
+                </div>
+                <div className="garage-card-info">
             <h3>{car.name}</h3>
             <span>{car.className}</span>
             <div className="speed-label">SPEED {car.speed}/5</div>
