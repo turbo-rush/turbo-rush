@@ -313,6 +313,17 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     });
     let smokeCursor = 0;
 
+    // Short comic speed streaks appear beside the road at high speed
+    const speedStreaks = Array.from({ length: 14 }, (_, i) => {
+      const streak = new THREE.Mesh(
+        new THREE.BoxGeometry(0.055, 0.045, 1.4 + (i % 3) * 0.55),
+        new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffffff : 0x8cecff, transparent: true, opacity: 0.72 })
+      );
+      streak.visible = false;
+      scene.add(streak);
+      return streak;
+    });
+
     const rivals = [0xffc629, 0xf04f68, 0x9b70ed].map((color, i) => {
       const rival = makeCar(color, i + 1);
       scene.add(rival);
@@ -403,6 +414,20 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       camera.position.lerp(new THREE.Vector3(player.position.x - tangent.x * 9, 25, player.position.z - tangent.z * 9 + 12), 0.075);
       camera.lookAt(player.position.x + side.x * lateral * 0.12, 0, player.position.z + side.z * lateral * 0.12);
       rivals.forEach((rival, i) => placeCar(rival, t + 0.96 - i * 0.03, (i - 1) * 2.2));
+      speedStreaks.forEach((streak, i) => {
+        const active = speed > 0.052;
+        streak.visible = active;
+        if (!active) return;
+        const streakT = (t + 0.012 + i * 0.0018) % 1;
+        const streakPoint = curve.getPointAt(streakT);
+        const streakTangent = curve.getTangentAt(streakT).normalize();
+        const streakSide = new THREE.Vector3(-streakTangent.z, 0, streakTangent.x);
+        const sideSign = i % 2 === 0 ? -1 : 1;
+        streakPoint.addScaledVector(streakSide, sideSign * (8.8 + (i % 4) * 1.05));
+        streak.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(streakTangent.x, streakTangent.z));
+        streak.position.set(streakPoint.x, 0.45 + (i % 3) * 0.18, streakPoint.z);
+        streak.scale.z = c.nitro ? 1.8 : 1;
+      });
       renderer.render(scene, camera);
     };
     raf = requestAnimationFrame(frame);
