@@ -185,6 +185,26 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
 
     const player = makeCar(carColor, carModel);
     scene.add(player);
+    const nitroFlames = [-0.62, 0.62].map(x => {
+      const flame = new THREE.Mesh(
+        new THREE.ConeGeometry(0.22, 1.05, 7),
+        new THREE.MeshBasicMaterial({ color: 0x36dfff })
+      );
+      flame.rotation.x = Math.PI / 2;
+      flame.position.set(x, 0.62, 2.48);
+      flame.visible = false;
+      player.add(flame);
+      return flame;
+    });
+    const smokeMaterial = new THREE.MeshBasicMaterial({ color: 0xcbd5df, transparent: true, opacity: 0.32 });
+    const smokePuffs = Array.from({ length: 10 }, () => {
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(0.22, 6, 5), smokeMaterial.clone());
+      puff.visible = false;
+      scene.add(puff);
+      return { mesh: puff, life: 0 };
+    });
+    let smokeCursor = 0;
+
     const rivals = [0xffc629, 0xf04f68, 0x9b70ed].map((color, i) => {
       const rival = makeCar(color, i + 1);
       scene.add(rival);
@@ -230,6 +250,31 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         speed = THREE.MathUtils.clamp(speed + acceleration * dt, 0, maxSpeed);
         const steer = (c.right ? 1 : 0) - (c.left ? 1 : 0);
         lateral = THREE.MathUtils.clamp(lateral + steer * (0.9 + speed * 8) * dt, -5.2, 5.2);
+        nitroFlames.forEach((flame, i) => {
+          flame.visible = c.nitro && speed > 0.025;
+          flame.scale.setScalar(flame.visible ? 0.78 + Math.random() * 0.48 : 0.001);
+          flame.position.z = 2.42 + Math.random() * 0.18;
+          flame.material = flame.material;
+        });
+        if (Math.abs(steer) > 0 && speed > 0.035 && Math.random() < 0.42) {
+          const puff = smokePuffs[smokeCursor];
+          smokeCursor = (smokeCursor + 1) % smokePuffs.length;
+          puff.life = 0.55;
+          puff.mesh.visible = true;
+          const wheelSide = Math.random() < 0.5 ? -1 : 1;
+          const rear = player.localToWorld(new THREE.Vector3(wheelSide * 1.05, 0.34, 1.55));
+          puff.mesh.position.copy(rear);
+          puff.mesh.scale.setScalar(0.55);
+          (puff.mesh.material as THREE.MeshBasicMaterial).opacity = 0.3;
+        }
+        smokePuffs.forEach(puff => {
+          if (puff.life <= 0) return;
+          puff.life -= dt;
+          puff.mesh.position.y += dt * 1.15;
+          puff.mesh.scale.multiplyScalar(1 + dt * 1.5);
+          (puff.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, puff.life / 0.55) * 0.3;
+          if (puff.life <= 0) puff.mesh.visible = false;
+        });
         progress += speed * dt;
         if (progress >= totalLaps) {
           finishRef.current = true;
