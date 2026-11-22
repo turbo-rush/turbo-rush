@@ -171,6 +171,31 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       scene.add(checker);
     }
 
+    // Comic-style start gantry with signal lamps above the start line
+    const gantryMaterial = new THREE.MeshToonMaterial({ color: 0x202b3b });
+    const gantryYaw = finishYaw;
+    for (const sign of [-1, 1]) {
+      const postPosition = finishPoint.clone().addScaledVector(finishSide, sign * 8.35);
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.48, 5.8, 0.55), gantryMaterial);
+      post.position.set(postPosition.x, 2.9, postPosition.z);
+      post.rotation.y = gantryYaw;
+      scene.add(post);
+    }
+    const gantryBeam = new THREE.Mesh(new THREE.BoxGeometry(17.1, 0.58, 0.72), gantryMaterial);
+    gantryBeam.position.set(finishPoint.x, 5.65, finishPoint.z);
+    gantryBeam.rotation.y = gantryYaw;
+    scene.add(gantryBeam);
+    const signalLamps = Array.from({ length: 5 }, (_, i) => {
+      const lamp = new THREE.Mesh(
+        new THREE.SphereGeometry(0.34, 10, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff3038 })
+      );
+      const lampPosition = finishPoint.clone().addScaledVector(finishSide, (i - 2) * 2.25);
+      lamp.position.set(lampPosition.x, 5.08, lampPosition.z);
+      scene.add(lamp);
+      return lamp;
+    });
+
     // Continuous bright edge lines and reflective road studs improve road readability
     const edgeLineMaterial = new THREE.MeshBasicMaterial({ color: 0xf4f0df });
     const studMaterial = new THREE.MeshBasicMaterial({ color: 0xffd36b });
@@ -439,6 +464,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       raf = requestAnimationFrame(frame);
       const dt = Math.min((now - (last || now)) / 1000, 0.04);
       last = now;
+      signalLamps.forEach(lamp => {
+        (lamp.material as THREE.MeshBasicMaterial).color.setHex(countdownElapsed >= 3 ? 0x45ff83 : 0xff3038);
+      });
       if (!finishRef.current) {
         countdownElapsed += dt;
         const countdownActive = countdownElapsed < 3;
