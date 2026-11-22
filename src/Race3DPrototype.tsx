@@ -113,7 +113,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   const finishRef = useRef(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
-  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false });
+  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false, offroad: false, bumped: false, lapNotice: "" });
   const [finished, setFinished] = useState(false);
   const [countdown, setCountdown] = useState(3);
 
@@ -436,6 +436,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     let last = 0;
     let hudTimer = 0;
     let previousPosition = 1;
+    let previousLap = 1;
+    let lapNoticeUntil = 0;
     let overtakeUntil = 0;
     let bumpUntil = 0;
     let collisionCooldown = 0;
@@ -557,6 +559,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           if (mark.life <= 0) mark.mesh.visible = false;
         });
         progress += speed * dt;
+        const currentLap = Math.min(totalLaps, Math.floor(progress) + 1);
+        if (currentLap > previousLap && currentLap <= totalLaps) lapNoticeUntil = elapsed + 1.8;
+        previousLap = currentLap;
         if (progress >= totalLaps) {
           finishRef.current = true;
           setFinished(true);
@@ -575,7 +580,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
             position,
             overtake: elapsed < overtakeUntil,
             offroad,
-            bumped: elapsed < bumpUntil
+            bumped: elapsed < bumpUntil,
+            lapNotice: elapsed < lapNoticeUntil ? `LAP ${previousLap}!` : ""
           });
           hudTimer = 0;
         }
@@ -673,6 +679,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     {hud.overtake && !finished && <div style={{ position: "absolute", top: 54, left: 0, right: 0, textAlign: "center", color: "#ffe05b", fontSize: 24, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033, -1px -1px 0 #152033" }}>OVERTAKE!</div>}
     {hud.offroad && !finished && <div style={{ position: "absolute", top: 84, left: 0, right: 0, textAlign: "center", color: "#ff9b42", fontSize: 18, fontWeight: 1000, fontStyle: "italic", letterSpacing: 1, textShadow: "2px 3px 0 #152033" }}>OFF TRACK! SLOW DOWN</div>}
     {hud.bumped && !finished && <div style={{ position: "absolute", top: 112, left: 0, right: 0, textAlign: "center", color: "#ff6b52", fontSize: 22, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033" }}>BUMP!</div>}
+    {hud.lapNotice && !finished && <div style={{ position: "absolute", top: "42%", left: 0, right: 0, textAlign: "center", color: "#ffffff", fontSize: 42, fontWeight: 1000, fontStyle: "italic", letterSpacing: 3, textShadow: "4px 5px 0 #152033, -2px -2px 0 #152033" }}>{hud.lapNotice}</div>}
     {finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "#07111dcc", color: "#fff", fontSize: 28, fontWeight: 900 }}>FINISH!</div>}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 7, padding: 9, background: "#0c1a2b" }}>
       <button style={buttonStyle} onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); press("left", true); }} onPointerUp={() => press("left", false)} onPointerCancel={() => press("left", false)}>◀</button>
