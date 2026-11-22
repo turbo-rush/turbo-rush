@@ -441,6 +441,9 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       }
       const t = progress % 1;
       placeCar(player, t, lateral);
+      const impactWobble = Math.max(0, (bumpUntil - elapsed) / 0.65);
+      player.rotation.z = THREE.MathUtils.lerp(player.rotation.z, Math.sin(elapsed * 34) * 0.13 * impactWobble, 0.22);
+      player.rotation.x = THREE.MathUtils.lerp(player.rotation.x, Math.cos(elapsed * 29) * 0.045 * impactWobble, 0.2);
       const tangent = curve.getTangentAt(t).normalize();
       const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
       const lookAhead = curve.getPointAt((t + 0.018) % 1);
