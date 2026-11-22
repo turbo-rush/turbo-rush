@@ -113,7 +113,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
   const finishRef = useRef(false);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
-  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1 });
+  const [hud, setHud] = useState({ speed: 0, lap: 1, time: 0, position: 1, overtake: false });
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
@@ -337,6 +337,8 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     let elapsed = 0;
     let last = 0;
     let hudTimer = 0;
+    let previousPosition = 1;
+    let overtakeUntil = 0;
     let raf = 0;
     const totalLaps = 3;
 
@@ -403,7 +405,16 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         }
         hudTimer += dt;
         if (hudTimer > 0.12) {
-          setHud({ speed: Math.round(speed * 1500), lap: Math.min(totalLaps, Math.floor(progress) + 1), time: elapsed, position: 1 + rivalProgress.filter(rival => rival > progress).length });
+          const position = 1 + rivalProgress.filter(rival => rival > progress).length;
+          if (position < previousPosition) overtakeUntil = elapsed + 1.6;
+          previousPosition = position;
+          setHud({
+            speed: Math.round(speed * 1500),
+            lap: Math.min(totalLaps, Math.floor(progress) + 1),
+            time: elapsed,
+            position,
+            overtake: elapsed < overtakeUntil
+          });
           hudTimer = 0;
         }
       }
@@ -462,6 +473,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
     <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", justifyContent: "space-between", color: "#fff", fontWeight: 900, fontSize: 12, textShadow: "0 2px 4px #111" }}>
       <span>LAP {hud.lap}/3</span><span>POS {hud.position}/4</span><span>{hud.speed} KM/H</span><span>{hud.time.toFixed(1)}s</span>
     </div>
+    {hud.overtake && !finished && <div style={{ position: "absolute", top: 54, left: 0, right: 0, textAlign: "center", color: "#ffe05b", fontSize: 24, fontWeight: 1000, fontStyle: "italic", letterSpacing: 2, textShadow: "2px 3px 0 #152033, -1px -1px 0 #152033" }}>OVERTAKE!</div>}
     {finished && <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "#07111dcc", color: "#fff", fontSize: 28, fontWeight: 900 }}>FINISH!</div>}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 7, padding: 9, background: "#0c1a2b" }}>
       <button style={buttonStyle} onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); press("left", true); }} onPointerUp={() => press("left", false)} onPointerCancel={() => press("left", false)}>◀</button>
