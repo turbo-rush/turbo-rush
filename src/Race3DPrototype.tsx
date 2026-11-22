@@ -249,7 +249,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       const lookAhead = curve.getPointAt((t + 0.018) % 1);
       camera.position.lerp(new THREE.Vector3(player.position.x - tangent.x * 9, 25, player.position.z - tangent.z * 9 + 12), 0.075);
       camera.lookAt(player.position.x + side.x * lateral * 0.12, 0, player.position.z + side.z * lateral * 0.12);
-      rivals.forEach((rival, i) => placeCar(rival, t + 0.985 - i * 0.012, (i - 1) * 2.5));
+      rivals.forEach((rival, i) => placeCar(rival, t + 0.96 - i * 0.03, (i - 1) * 2.2));
       renderer.render(scene, camera);
     };
     raf = requestAnimationFrame(frame);
