@@ -58,7 +58,38 @@ function makeCar(color: number, model: number) {
     return mesh;
   };
 
-  addOutlinedBox(2.15, 0.72, 4.15, paint, new THREE.Vector3(0, 0.78, 0));
+  // Sculpted street-racer body: tapered nose, wide shoulders and a muscular rear.
+  // The beveled plan-view extrusion replaces the old rectangular body block.
+  const bodyShape = new THREE.Shape();
+  bodyShape.moveTo(-0.82, 2.05);
+  bodyShape.lineTo(0.82, 2.05);
+  bodyShape.lineTo(1.02, 1.55);
+  bodyShape.lineTo(1.08, 0.82);
+  bodyShape.lineTo(1.03, -1.22);
+  bodyShape.lineTo(0.88, -1.88);
+  bodyShape.lineTo(0.64, -2.12);
+  bodyShape.lineTo(-0.64, -2.12);
+  bodyShape.lineTo(-0.88, -1.88);
+  bodyShape.lineTo(-1.03, -1.22);
+  bodyShape.lineTo(-1.08, 0.82);
+  bodyShape.lineTo(-1.02, 1.55);
+  bodyShape.closePath();
+  const bodyGeometry = new THREE.ExtrudeGeometry(bodyShape, {
+    depth: 0.62, bevelEnabled: true, bevelSegments: 3,
+    steps: 1, bevelSize: 0.1, bevelThickness: 0.1, curveSegments: 4
+  });
+  bodyGeometry.translate(0, 0, -0.31);
+  bodyGeometry.rotateX(Math.PI / 2);
+  bodyGeometry.computeVertexNormals();
+  const bodyOutline = new THREE.Mesh(bodyGeometry, new THREE.MeshBasicMaterial({
+    color: 0x10131b, side: THREE.BackSide
+  }));
+  bodyOutline.scale.setScalar(1.035);
+  bodyOutline.position.y = 0.79;
+  group.add(bodyOutline);
+  const body = new THREE.Mesh(bodyGeometry, paint);
+  body.position.y = 0.79;
+  group.add(body);
   addOutlinedBox(1.62, 0.7, 2.05, glass, new THREE.Vector3(0, 1.38, -0.18), 1.035);
   addOutlinedBox(1.55, 0.12, 1.35, paint, new THREE.Vector3(0, 1.76, -0.22), 1.06);
 
