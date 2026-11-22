@@ -426,7 +426,7 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
         streakPoint.addScaledVector(streakSide, sideSign * (8.8 + (i % 4) * 1.05));
         streak.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(streakTangent.x, streakTangent.z));
         streak.position.set(streakPoint.x, 0.45 + (i % 3) * 0.18, streakPoint.z);
-        streak.scale.z = c.nitro ? 1.8 : 1;
+        streak.scale.z = controlsRef.current.nitro ? 1.8 : 1;
       });
       renderer.render(scene, camera);
     };
