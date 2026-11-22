@@ -11,6 +11,9 @@ export default function Race3D({ carColor, carModel, onFinish }: Race3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [cameraMode, setCameraMode] = useState<"top" | "angle">("angle");
   const [steeringAngle, setSteeringAngle] = useState(0);
+  const mapTrackRef = useRef<SVGPathElement>(null);
+  const mapTrackDashRef = useRef<SVGPathElement>(null);
+  const mapMarkerRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -36,9 +39,10 @@ if (cameraMode === "top") {
   camera.position.set(0, 22, 19);
   camera.lookAt(0, 0, -8);
 }
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Ограничиваем число пикселей для стабильного FPS на телефонах.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     renderer.shadowMap.enabled = false;
     mount.appendChild(renderer.domElement);
 
@@ -68,7 +72,29 @@ if (cameraMode === "top") {
       new THREE.Vector3(5, 0, 10)
     ], true, "centripetal");
 
-    const trackSamples = 260;
+    // Рисуем мини-карту из той же геометрии, что и игровую трассу.
+    const mapPoints = trackPath.getPoints(240);
+    const minMapX = Math.min(...mapPoints.map((p) => p.x));
+    const maxMapX = Math.max(...mapPoints.map((p) => p.x));
+    const minMapZ = Math.min(...mapPoints.map((p) => p.z));
+    const maxMapZ = Math.max(...mapPoints.map((p) => p.z));
+    const mapPadding = 10;
+    const mapScale = Math.min(
+      (100 - mapPadding * 2) / (maxMapX - minMapX),
+      (112 - mapPadding * 2) / (maxMapZ - minMapZ)
+    );
+    const toMapPoint = (point: THREE.Vector3) => ({
+      x: 50 + (point.x - (minMapX + maxMapX) / 2) * mapScale,
+      y: 56 + (point.z - (minMapZ + maxMapZ) / 2) * mapScale
+    });
+    const mapPathData = mapPoints.map((point, index) => {
+      const mapped = toMapPoint(point);
+      return `${index === 0 ? "M" : "L"} ${mapped.x.toFixed(2)} ${mapped.y.toFixed(2)}`;
+    }).join(" ") + " Z";
+    mapTrackRef.current?.setAttribute("d", mapPathData);
+    mapTrackDashRef.current?.setAttribute("d", mapPathData);
+
+    const trackSamples = 180;
     const roadHalfWidth = 6;
     const getTrackFrame = (t: number) => {
       const point = trackPath.getPointAt(t);
@@ -113,17 +139,18 @@ if (cameraMode === "top") {
       new THREE.MeshStandardMaterial({ color: 0xe94b45, roughness: 0.8 }),
       new THREE.MeshStandardMaterial({ color: 0xf2eee4, roughness: 0.8 })
     ];
-    const curbGeometry = new THREE.BoxGeometry(0.92, 0.18, 1.18);
+    const curbCount = 144;
+    const curbGeometry = new THREE.BoxGeometry(0.92, 0.16, 1.18);
     const curbInstances = curbMaterials.map((material) => {
-      const mesh = new THREE.InstancedMesh(curbGeometry, material, 220);
+      const mesh = new THREE.InstancedMesh(curbGeometry, material, curbCount);
       mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
       scene.add(mesh);
       return mesh;
     });
     const curbDummy = new THREE.Object3D();
     for (let side of [-1, 1]) {
-      for (let i = 0; i < 220; i++) {
-        const t = i / 220;
+      for (let i = 0; i < curbCount; i++) {
+        const t = i / curbCount;
         const { point, tangent, normal } = getTrackFrame(t);
         const curbPosition = point.clone().addScaledVector(normal, side * (roadHalfWidth + 0.48));
         curbDummy.position.set(curbPosition.x, 0.12, curbPosition.z);
@@ -156,8 +183,8 @@ if (cameraMode === "top") {
     }
 
     // Короткая пунктирная разметка по центру асфальта
-    for (let i = 0; i < 44; i++) {
-      const t = i / 44;
+    for (let i = 0; i < 30; i++) {
+      const t = i / 30;
       const { point, tangent } = getTrackFrame(t);
       const dash = new THREE.Mesh(
         new THREE.BoxGeometry(0.16, 0.045, 1.25),
@@ -332,6 +359,10 @@ window.addEventListener("keyup", handleKeyUp);
       car.rotation.y = heading - steeringVisual * 0.12;
       car.rotation.z = -steeringVisual * 0.045;
 
+      const mapPosition = toMapPoint(frame.point);
+      mapMarkerRef.current?.setAttribute("cx", mapPosition.x.toFixed(2));
+      mapMarkerRef.current?.setAttribute("cy", mapPosition.y.toFixed(2));
+
       // Камера следует за машиной, сохраняя выбранный ракурс
       if (cameraMode === "top") {
         camera.position.set(car.position.x, 34, car.position.z - 1);
@@ -430,13 +461,9 @@ return (
         TRACK MAP
       </div>
       <svg viewBox="0 0 100 112" width="100%" height="112" aria-label="Мини-карта трассы">
-        <path d="M 50 7 C 69 7 83 16 84 31 C 85 44 72 49 62 51 C 48 54 37 48 27 56 C 15 66 19 84 33 94 C 46 103 69 102 78 91 C 88 79 79 68 68 66"
-          fill="none" stroke="#080e16" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M 50 7 C 69 7 83 16 84 31 C 85 44 72 49 62 51 C 48 54 37 48 27 56 C 15 66 19 84 33 94 C 46 103 69 102 78 91 C 88 79 79 68 68 66"
-          fill="none" stroke="#e9e4d8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M 50 7 C 69 7 83 16 84 31 C 85 44 72 49 62 51 C 48 54 37 48 27 56 C 15 66 19 84 33 94 C 46 103 69 102 78 91 C 88 79 79 68 68 66"
-          fill="none" stroke="#f5f0e5" strokeWidth="1" strokeDasharray="3 4" />
-        <circle cx="50" cy="7" r="4.5" fill="#36c5f0" stroke="#ffffff" strokeWidth="1.5" />
+        <path ref={mapTrackRef} fill="none" stroke="#080e16" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" />
+        <path ref={mapTrackDashRef} fill="none" stroke="#f1eee4" strokeWidth="1.2" strokeDasharray="3 3" strokeLinecap="round" />
+        <circle ref={mapMarkerRef} cx="50" cy="56" r="4.5" fill="#36c5f0" stroke="#ffffff" strokeWidth="1.5" />
       </svg>
     </div>
 
