@@ -93,21 +93,44 @@ function makeCar(color: number, model: number) {
   addOutlinedBox(1.62, 0.7, 2.05, glass, new THREE.Vector3(0, 1.38, -0.18), 1.035);
   addOutlinedBox(1.55, 0.12, 1.35, paint, new THREE.Vector3(0, 1.76, -0.22), 1.06);
 
-  const wheelGeometry = new THREE.CylinderGeometry(0.43, 0.43, 0.34, 12);
-  const rimGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.355, 10);
+  const wheelGeometry = new THREE.CylinderGeometry(0.46, 0.46, 0.38, 20);
+  const rimGeometry = new THREE.CylinderGeometry(0.315, 0.315, 0.395, 20);
+  const spokeMaterial = new THREE.MeshStandardMaterial({ color: 0xd8e2ec, metalness: 0.82, roughness: 0.24 });
+  const brakeDiscMaterial = new THREE.MeshStandardMaterial({ color: 0x596575, metalness: 0.72, roughness: 0.42 });
+  const caliperMaterial = new THREE.MeshToonMaterial({ color: model % 2 === 0 ? 0xffd044 : 0xff594f });
   for (const x of [-1.12, 1.12]) for (const z of [-1.28, 1.28]) {
     const wheel = new THREE.Mesh(wheelGeometry, rubber);
     wheel.rotation.z = Math.PI / 2;
     wheel.position.set(x, 0.48, z);
     group.add(wheel);
-    const rim = new THREE.Mesh(rimGeometry, metal);
+
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.035, 20), brakeDiscMaterial);
+    disc.rotation.z = Math.PI / 2;
+    disc.position.set(x * 0.91, 0.48, z);
+    group.add(disc);
+
+    const rim = new THREE.Mesh(rimGeometry, dark);
     rim.rotation.z = Math.PI / 2;
     rim.position.set(x * 1.012, 0.48, z);
     group.add(rim);
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.37, 8), dark);
+
+    // Ten sculpted spokes and a bright center lock make each wheel read as a performance alloy.
+    for (let spokeIndex = 0; spokeIndex < 10; spokeIndex++) {
+      const angle = (spokeIndex / 10) * Math.PI * 2;
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.255, 0.075), spokeMaterial);
+      spoke.position.set(x * 1.045, 0.48 + Math.cos(angle) * 0.17, z + Math.sin(angle) * 0.17);
+      spoke.rotation.x = -angle;
+      group.add(spoke);
+    }
+
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.42, 12), metal);
     hub.rotation.z = Math.PI / 2;
-    hub.position.set(x * 1.018, 0.48, z);
+    hub.position.set(x * 1.055, 0.48, z);
     group.add(hub);
+
+    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.12), caliperMaterial);
+    caliper.position.set(x * 0.93, 0.59, z + 0.22);
+    group.add(caliper);
   }
 
   addOutlinedBox(2.28, 0.2, 0.28, dark, new THREE.Vector3(0, 0.48, -2.08));
