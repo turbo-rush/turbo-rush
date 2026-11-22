@@ -304,6 +304,16 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
       player.add(flame);
       return flame;
     });
+    const nitroTrails = [-0.72, 0.72].map(x => {
+      const trail = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.08, 2.6),
+        new THREE.MeshBasicMaterial({ color: 0x35dcff, transparent: true, opacity: 0.82 })
+      );
+      trail.position.set(x, 0.55, 3.15);
+      trail.visible = false;
+      player.add(trail);
+      return trail;
+    });
     const smokeMaterial = new THREE.MeshBasicMaterial({ color: 0xcbd5df, transparent: true, opacity: 0.32 });
     const smokePuffs = Array.from({ length: 10 }, () => {
       const puff = new THREE.Mesh(new THREE.SphereGeometry(0.22, 6, 5), smokeMaterial.clone());
@@ -377,6 +387,11 @@ export default function Race3DPrototype({ carColor, carModel, onFinish }: Props)
           flame.scale.setScalar(flame.visible ? 0.78 + Math.random() * 0.48 : 0.001);
           flame.position.z = 2.42 + Math.random() * 0.18;
           flame.material = flame.material;
+        });
+        nitroTrails.forEach((trail, i) => {
+          trail.visible = c.nitro && speed > 0.025;
+          trail.scale.z = trail.visible ? 0.75 + Math.random() * 0.65 : 0.001;
+          trail.position.z = 2.85 + Math.random() * 0.45;
         });
         if (Math.abs(steer) > 0 && speed > 0.035 && Math.random() < 0.42) {
           const puff = smokePuffs[smokeCursor];
