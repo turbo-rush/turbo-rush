@@ -192,11 +192,27 @@ function makeCar(color: number, model: number) {
   }
 
   // Bold comic-style hood stripes and front splitter
-  const stripeColor = model % 2 === 0 ? 0xffffff : 0x171d28;
-  for (const x of [-0.36, 0.36]) {
-    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.025, 1.12), new THREE.MeshBasicMaterial({ color: stripeColor }));
-    stripe.position.set(x, 1.151, -1.28);
+  const hoodAccentColors = [0x36c5f0, 0xffc629, 0x9b55ff, 0xff354f, 0xe8f2ff];
+  const hoodAccentColor = hoodAccentColors[model] ?? 0xffffff;
+  const hoodStripeWidth = [0.09, 0.12, 0.15, 0.1, 0.18][model] ?? 0.12;
+  const hoodStripeXs = model === 1 ? [-0.42, 0.42] : model === 3 ? [-0.3, 0.3] : [-0.36, 0.36];
+  for (const x of hoodStripeXs) {
+    const stripe = new THREE.Mesh(
+      new THREE.BoxGeometry(hoodStripeWidth, 0.028, model === 4 ? 1.28 : 1.12),
+      new THREE.MeshBasicMaterial({ color: hoodAccentColor })
+    );
+    stripe.position.set(x, 1.153, -1.28);
     group.add(stripe);
+  }
+  if (model === 2 || model === 4) {
+    for (const x of [-0.16, 0.16]) {
+      const vent = new THREE.Mesh(
+        new THREE.BoxGeometry(0.055, 0.035, 0.38),
+        new THREE.MeshStandardMaterial({ color: 0x171d28, roughness: 0.72 })
+      );
+      vent.position.set(x, 1.16, -1.12);
+      group.add(vent);
+    }
   }
   // Model-specific front splitters: wider and deeper on higher-tier cars.
   const splitterWidths = [2.18, 2.32, 2.48, 2.66, 2.82];
