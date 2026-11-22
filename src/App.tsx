@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
-import RaceCore from "./RaceCore";
+import RaceCore from "./Race3DPrototype";
 
 type Tab = "race" | "garage" | "rating" | "shop";
 type Car = { name: string; className: string; speed: number; color: number; price: number };
