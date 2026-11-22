@@ -125,6 +125,27 @@ const handleNitro = (event: Event) => {
 };
 
 window.addEventListener("turbo-nitro", handleNitro);
+    
+// Пламя нитро за машиной
+const flameMaterial = new THREE.MeshStandardMaterial({
+  color: 0xff6500,
+  emissive: 0xff4500,
+  emissiveIntensity: 2
+});
+
+const flameGeometry = new THREE.ConeGeometry(0.18, 0.9, 8);
+
+const flames: THREE.Mesh[] = [];
+
+for (const x of [-0.5, 0.5]) {
+  const flame = new THREE.Mesh(flameGeometry, flameMaterial);
+  flame.rotation.x = Math.PI / 2;
+  flame.position.set(x, 0.65, 2.35);
+  flame.visible = false;
+  car.add(flame);
+  flames.push(flame);
+}
+
     scene.add(car);
   // Управление поворотом от виртуального руля
 let steeringTargetX = 0;
