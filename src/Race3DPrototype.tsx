@@ -281,7 +281,28 @@ function makeCar(color: number, model: number) {
   }
   addOutlinedBox(1.45, 0.12, 0.42, dark, new THREE.Vector3(0, 0.42, 2.12));
 
-  // Rear light bar and twin exhausts complete the performance-car silhouette.
+    // Model-specific rear bumper diffuser: wider lower valance and colored corner fins.
+  const rearValanceWidths = [1.62, 1.78, 1.94, 2.1, 2.26];
+  const rearValanceHeights = [0.14, 0.16, 0.18, 0.2, 0.22];
+  const rearAccentColors = [0x36c5f0, 0xffc629, 0x9b55ff, 0xff354f, 0xe8f2ff];
+  addOutlinedBox(
+    rearValanceWidths[model] ?? 1.94,
+    rearValanceHeights[model] ?? 0.18,
+    0.16,
+    dark,
+    new THREE.Vector3(0, 0.49, 2.12),
+    1.045
+  );
+  for (const x of [-1, 1]) {
+    const rearFin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.075, 0.28 + model * 0.025, 0.2 + model * 0.025),
+      new THREE.MeshBasicMaterial({ color: rearAccentColors[model] ?? 0xffffff })
+    );
+    rearFin.position.set(x * (0.68 + model * 0.07), 0.43, 2.19);
+    group.add(rearFin);
+  }
+
+// Rear light bar and twin exhausts complete the performance-car silhouette.
   addOutlinedBox(1.72, 0.2, 0.12, dark, new THREE.Vector3(0, 0.99, 2.13), 1.06);
   for (const x of [-0.66, 0.66]) {
     const tailLamp = new THREE.Mesh(
