@@ -116,6 +116,35 @@ function makeCar(color: number, model: number) {
     new THREE.Vector3(0, 1.76 + (model >= 3 ? -0.035 : 0), -0.22),
     1.06
   );
+  // Individual side windows and front/rear glass give each cabin a clearer profile.
+  const sideWindowLengths = [0.88, 0.96, 1.02, 1.08, 1.14];
+  const sideWindowHeights = [0.25, 0.27, 0.28, 0.29, 0.3];
+  for (const side of [-1, 1]) {
+    addOutlinedBox(
+      0.025,
+      sideWindowHeights[model] ?? 0.28,
+      sideWindowLengths[model] ?? 1.02,
+      glass,
+      new THREE.Vector3(side * ((cabinWidths[model] ?? 1.62) / 2 + 0.012), 1.43, -0.18),
+      1.025
+    );
+  }
+  addOutlinedBox(
+    (cabinWidths[model] ?? 1.62) * 0.72,
+    0.025,
+    0.28,
+    glass,
+    new THREE.Vector3(0, 1.45, -1.16),
+    1.02
+  );
+  addOutlinedBox(
+    (cabinWidths[model] ?? 1.62) * 0.68,
+    0.025,
+    0.26,
+    glass,
+    new THREE.Vector3(0, 1.44, 0.8),
+    1.02
+  );
 
   const wheelGeometry = new THREE.CylinderGeometry(0.46, 0.46, 0.38, 20);
   const rimGeometry = new THREE.CylinderGeometry(0.315, 0.315, 0.395, 20);
