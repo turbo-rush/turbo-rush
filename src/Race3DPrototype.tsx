@@ -154,14 +154,18 @@ function makeCar(color: number, model: number) {
   const spokeCount = spokeCounts[model] ?? 10;
   const spokeMaterial = new THREE.MeshStandardMaterial({ color: rimColor, metalness: 0.82, roughness: 0.24 });
   const brakeDiscMaterial = new THREE.MeshStandardMaterial({ color: 0x596575, metalness: 0.72, roughness: 0.42 });
-  const caliperMaterial = new THREE.MeshToonMaterial({ color: model % 2 === 0 ? 0xffd044 : 0xff594f });
+  const brakeDiscRadii = [0.29, 0.3, 0.315, 0.33, 0.345];
+  const brakeDiscRadius = brakeDiscRadii[model] ?? 0.315;
+  const caliperColors = [0xffd044, 0xff9d36, 0xb58aff, 0xff354f, 0xe8f2ff];
+  const caliperMaterial = new THREE.MeshToonMaterial({ color: caliperColors[model] ?? 0xff594f });
+  const caliperSizes = [0.16, 0.18, 0.2, 0.22, 0.24];
   for (const x of [-1.12, 1.12]) for (const z of [-1.28, 1.28]) {
     const wheel = new THREE.Mesh(wheelGeometry, rubber);
     wheel.rotation.z = Math.PI / 2;
     wheel.position.set(x, 0.48, z);
     group.add(wheel);
 
-    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.035, 20), brakeDiscMaterial);
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(brakeDiscRadius, brakeDiscRadius, 0.035, 24), brakeDiscMaterial);
     disc.rotation.z = Math.PI / 2;
     disc.position.set(x * 0.91, 0.48, z);
     group.add(disc);
@@ -185,7 +189,7 @@ function makeCar(color: number, model: number) {
     hub.position.set(x * 1.055, 0.48, z);
     group.add(hub);
 
-    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.12), caliperMaterial);
+    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.12, caliperSizes[model] ?? 0.2, 0.14), caliperMaterial);
     caliper.position.set(x * 0.93, 0.59, z + 0.22);
     group.add(caliper);
   }
