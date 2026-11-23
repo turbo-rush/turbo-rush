@@ -148,7 +148,11 @@ function makeCar(color: number, model: number) {
 
   const wheelGeometry = new THREE.CylinderGeometry(0.46, 0.46, 0.38, 20);
   const rimGeometry = new THREE.CylinderGeometry(0.315, 0.315, 0.395, 20);
-  const spokeMaterial = new THREE.MeshStandardMaterial({ color: 0xd8e2ec, metalness: 0.82, roughness: 0.24 });
+  const rimColors = [0xb8c4d2, 0xffd044, 0xb58aff, 0xff526d, 0xe8f2ff];
+  const rimColor = rimColors[model] ?? 0xd8e2ec;
+  const spokeCounts = [8, 10, 5, 6, 7];
+  const spokeCount = spokeCounts[model] ?? 10;
+  const spokeMaterial = new THREE.MeshStandardMaterial({ color: rimColor, metalness: 0.82, roughness: 0.24 });
   const brakeDiscMaterial = new THREE.MeshStandardMaterial({ color: 0x596575, metalness: 0.72, roughness: 0.42 });
   const caliperMaterial = new THREE.MeshToonMaterial({ color: model % 2 === 0 ? 0xffd044 : 0xff594f });
   for (const x of [-1.12, 1.12]) for (const z of [-1.28, 1.28]) {
