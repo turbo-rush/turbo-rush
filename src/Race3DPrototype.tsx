@@ -399,9 +399,32 @@ function makeCar(color: number, model: number) {
     exhaust.position.set(x * 1.22, 0.43, 2.28);
     group.add(exhaust);
   }
-  for (const x of [-0.48, -0.16, 0.16, 0.48]) {
-    addOutlinedBox(0.075, 0.22, 0.3, dark, new THREE.Vector3(x, 0.39, 2.16), 1.04);
+  // Model-specific diffuser fins: each car gets its own fin count and depth profile.
+  const diffuserFinCounts = [3, 4, 5, 6, 7];
+  const diffuserFinWidths = [0.09, 0.085, 0.08, 0.075, 0.07];
+  const diffuserFinHeights = [0.17, 0.19, 0.21, 0.23, 0.25];
+  const diffuserFinDepths = [0.22, 0.25, 0.28, 0.31, 0.34];
+  const finCount = diffuserFinCounts[model] ?? 5;
+  for (let fin = 0; fin < finCount; fin++) {
+    const x = (fin - (finCount - 1) / 2) * (0.96 / Math.max(1, finCount - 1));
+    addOutlinedBox(
+      diffuserFinWidths[model] ?? 0.08,
+      diffuserFinHeights[model] ?? 0.21,
+      diffuserFinDepths[model] ?? 0.28,
+      dark,
+      new THREE.Vector3(x, 0.39, 2.16),
+      1.04
+    );
   }
+  const diffuserTunnelWidths = [0.34, 0.4, 0.46, 0.52, 0.58];
+  addOutlinedBox(
+    diffuserTunnelWidths[model] ?? 0.46,
+    0.075,
+    0.34 + model * 0.025,
+    new THREE.MeshBasicMaterial({ color: rearAccentColors[model] ?? 0xffffff }),
+    new THREE.Vector3(0, 0.34, 2.18),
+    1.02
+  );
 
   group.scale.setScalar(model === 2 ? 0.94 : model === 4 ? 1.04 : 1);
   return group;
