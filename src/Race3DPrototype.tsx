@@ -368,15 +368,24 @@ function makeCar(color: number, model: number) {
     group.add(rearFin);
   }
 
-// Rear light bar and twin exhausts complete the performance-car silhouette.
-  addOutlinedBox(1.72, 0.2, 0.12, dark, new THREE.Vector3(0, 0.99, 2.13), 1.06);
+// Model-specific rear lighting: compact lamps, wide light bars, and colored LED signatures.
+  const rearLampWidths = [0.4, 0.46, 0.52, 0.58, 0.64];
+  const rearLampHeights = [0.11, 0.095, 0.085, 0.075, 0.07];
+  const rearLedColors = [0xff334d, 0xffb52e, 0xb58aff, 0xff526d, 0xe8f2ff];
+  addOutlinedBox(1.72 + model * 0.08, 0.2, 0.12, dark, new THREE.Vector3(0, 0.99, 2.13), 1.06);
   for (const x of [-0.66, 0.66]) {
     const tailLamp = new THREE.Mesh(
-      new THREE.BoxGeometry(0.48, 0.095, 0.055),
+      new THREE.BoxGeometry(rearLampWidths[model] ?? 0.52, rearLampHeights[model] ?? 0.085, 0.055),
       new THREE.MeshBasicMaterial({ color: 0xff334d })
     );
     tailLamp.position.set(x, 1.0, 2.205);
     group.add(tailLamp);
+    const rearLed = new THREE.Mesh(
+      new THREE.BoxGeometry((rearLampWidths[model] ?? 0.52) * 0.82, 0.025, 0.025),
+      new THREE.MeshBasicMaterial({ color: rearLedColors[model] ?? 0xff334d })
+    );
+    rearLed.position.set(x, 1.055, 2.21);
+    group.add(rearLed);
 
     const exhaust = new THREE.Mesh(
       new THREE.CylinderGeometry(0.105, 0.13, 0.2, 10),
