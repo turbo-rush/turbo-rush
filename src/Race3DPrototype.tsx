@@ -194,23 +194,37 @@ function makeCar(color: number, model: number) {
     group.add(caliper);
   }
 
-  // Sculpted fender arches frame each tire with a bold comic outline.
+  // Model-specific wide fenders: progressively broader arches and outer flare lips.
+  const archRadii = [0.52, 0.535, 0.55, 0.565, 0.58];
+  const archOutlineTubes = [0.125, 0.135, 0.145, 0.155, 0.165];
+  const archPaintTubes = [0.075, 0.08, 0.085, 0.09, 0.095];
+  const flareOffsets = [0.035, 0.045, 0.055, 0.065, 0.075];
   for (const x of [-1.12, 1.12]) for (const z of [-1.28, 1.28]) {
+    const archRadius = archRadii[model] ?? 0.55;
+    const flareOffset = flareOffsets[model] ?? 0.055;
     const archOutline = new THREE.Mesh(
-      new THREE.TorusGeometry(0.53, 0.13, 8, 20, Math.PI),
+      new THREE.TorusGeometry(archRadius, archOutlineTubes[model] ?? 0.145, 8, 24, Math.PI),
       new THREE.MeshBasicMaterial({ color: 0x10131b })
     );
     archOutline.rotation.y = Math.PI / 2;
-    archOutline.position.set(x * 1.035, 0.48, z);
+    archOutline.position.set(x * (1.035 + flareOffset), 0.48, z);
     group.add(archOutline);
 
     const archPaint = new THREE.Mesh(
-      new THREE.TorusGeometry(0.53, 0.085, 8, 20, Math.PI),
+      new THREE.TorusGeometry(archRadius, archPaintTubes[model] ?? 0.085, 8, 24, Math.PI),
       paint
     );
     archPaint.rotation.y = Math.PI / 2;
-    archPaint.position.set(x * 1.065, 0.48, z);
+    archPaint.position.set(x * (1.065 + flareOffset), 0.48, z);
     group.add(archPaint);
+
+    const flareLip = new THREE.Mesh(
+      new THREE.TorusGeometry(archRadius + 0.035, 0.025 + model * 0.004, 6, 24, Math.PI),
+      new THREE.MeshBasicMaterial({ color: 0x171d28 })
+    );
+    flareLip.rotation.y = Math.PI / 2;
+    flareLip.position.set(x * (1.095 + flareOffset), 0.48, z);
+    group.add(flareLip);
   }
 
   addOutlinedBox(2.28, 0.2, 0.28, dark, new THREE.Vector3(0, 0.48, -2.08));
