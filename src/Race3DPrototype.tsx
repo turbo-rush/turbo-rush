@@ -94,8 +94,28 @@ function makeCar(color: number, model: number) {
   const body = new THREE.Mesh(bodyGeometry, paint);
   body.position.y = 0.79;
   group.add(body);
-  addOutlinedBox(1.62, 0.7, 2.05, glass, new THREE.Vector3(0, 1.38, -0.18), 1.035);
-  addOutlinedBox(1.55, 0.12, 1.35, paint, new THREE.Vector3(0, 1.76, -0.22), 1.06);
+  // Model-specific cabin silhouettes: compact roof, sport coupe, or low supercar canopy.
+  const cabinWidths = [1.52, 1.58, 1.62, 1.66, 1.7];
+  const cabinHeights = [0.68, 0.7, 0.66, 0.62, 0.58];
+  const cabinLengths = [1.92, 2.02, 2.08, 2.14, 2.2];
+  addOutlinedBox(
+    cabinWidths[model] ?? 1.62,
+    cabinHeights[model] ?? 0.68,
+    cabinLengths[model] ?? 2.05,
+    glass,
+    new THREE.Vector3(0, 1.38 + (model >= 3 ? -0.035 : 0), -0.18),
+    1.035
+  );
+  const roofWidths = [1.48, 1.52, 1.55, 1.58, 1.62];
+  const roofLengths = [1.22, 1.3, 1.36, 1.42, 1.48];
+  addOutlinedBox(
+    roofWidths[model] ?? 1.55,
+    0.12,
+    roofLengths[model] ?? 1.36,
+    paint,
+    new THREE.Vector3(0, 1.76 + (model >= 3 ? -0.035 : 0), -0.22),
+    1.06
+  );
 
   const wheelGeometry = new THREE.CylinderGeometry(0.46, 0.46, 0.38, 20);
   const rimGeometry = new THREE.CylinderGeometry(0.315, 0.315, 0.395, 20);
