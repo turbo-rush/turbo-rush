@@ -387,9 +387,13 @@ function makeCar(color: number, model: number) {
     rearLed.position.set(x, 1.055, 2.21);
     group.add(rearLed);
 
+    const exhaustRadii = [0.095, 0.11, 0.12, 0.135, 0.15];
+    const exhaustLengths = [0.17, 0.19, 0.21, 0.23, 0.25];
+    const exhaustColors = [0x9ba8b5, 0xd6a84b, 0x9d7be8, 0xc85a65, 0xe8f2ff];
+    const exhaustRadius = exhaustRadii[model] ?? 0.12;
     const exhaust = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.105, 0.13, 0.2, 10),
-      new THREE.MeshStandardMaterial({ color: 0x9ba8b5, metalness: 0.82, roughness: 0.28 })
+      new THREE.CylinderGeometry(exhaustRadius, exhaustRadius * 1.22, exhaustLengths[model] ?? 0.21, 12),
+      new THREE.MeshStandardMaterial({ color: exhaustColors[model] ?? 0x9ba8b5, metalness: 0.86, roughness: 0.22 })
     );
     exhaust.rotation.x = Math.PI / 2;
     exhaust.position.set(x * 1.22, 0.43, 2.28);
