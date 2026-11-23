@@ -214,7 +214,35 @@ function makeCar(color: number, model: number) {
       group.add(vent);
     }
   }
-  // Model-specific front splitters: wider and deeper on higher-tier cars.
+    // Model-specific front bumper shapes: layered lower fascia and corner canards.
+  const bumperWidths = [1.72, 1.86, 2.02, 2.18, 2.32];
+  const bumperHeights = [0.16, 0.18, 0.2, 0.22, 0.24];
+  const bumperColors = [0x36c5f0, 0xffc629, 0x9b55ff, 0xff354f, 0xe8f2ff];
+  addOutlinedBox(
+    bumperWidths[model] ?? 2.02,
+    bumperHeights[model] ?? 0.2,
+    0.16,
+    dark,
+    new THREE.Vector3(0, 0.62, -2.08),
+    1.045
+  );
+  for (const x of [-1, 1]) {
+    const canard = new THREE.Mesh(
+      new THREE.BoxGeometry(model >= 3 ? 0.42 : 0.3, 0.055, 0.22 + model * 0.025),
+      new THREE.MeshBasicMaterial({ color: bumperColors[model] ?? 0xffffff })
+    );
+    canard.position.set(x * (0.78 + model * 0.055), 0.56, -2.17);
+    canard.rotation.y = x * -0.16;
+    group.add(canard);
+  }
+  const lowerIntake = new THREE.Mesh(
+    new THREE.BoxGeometry(0.48 + model * 0.12, 0.075, 0.025),
+    new THREE.MeshBasicMaterial({ color: 0x101722 })
+  );
+  lowerIntake.position.set(0, 0.64, -2.17);
+  group.add(lowerIntake);
+
+// Model-specific front splitters: wider and deeper on higher-tier cars.
   const splitterWidths = [2.18, 2.32, 2.48, 2.66, 2.82];
   const splitterDepths = [0.22, 0.25, 0.28, 0.32, 0.36];
   addOutlinedBox(
