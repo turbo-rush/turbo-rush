@@ -223,24 +223,29 @@ function makeCar(color: number, model: number) {
   for (const x of [-wingWidth * 0.34, wingWidth * 0.34]) {
     addOutlinedBox(0.12, wingHeight - 0.7, 0.12, dark, new THREE.Vector3(x, (wingHeight + 0.7) / 2, 1.72), 1.08);
 
-    // Layered headlight housings with sharp LED strips.
+    // Model-specific headlight shapes: slim street LEDs to wide supercar light blades.
+    const headlightWidths = [0.52, 0.58, 0.62, 0.68, 0.72];
+    const headlightHeights = [0.2, 0.18, 0.16, 0.14, 0.13];
+    const ledColors = [0x54eaff, 0xffd044, 0xb58aff, 0xff526d, 0xe8f2ff];
+    const lampWidth = headlightWidths[model] ?? 0.62;
+    const lampHeight = headlightHeights[model] ?? 0.16;
     const housing = new THREE.Mesh(
-      new THREE.BoxGeometry(0.58, 0.22, 0.12),
+      new THREE.BoxGeometry(lampWidth + 0.12, lampHeight + 0.1, 0.12),
       new THREE.MeshToonMaterial({ color: 0x101a29 })
     );
     housing.position.set(x * 0.9, 0.91, -2.13);
     group.add(housing);
 
     const lamp = new THREE.Mesh(
-      new THREE.BoxGeometry(0.46, 0.095, 0.055),
+      new THREE.BoxGeometry(lampWidth, lampHeight, 0.055),
       new THREE.MeshBasicMaterial({ color: 0xfff4cf })
     );
     lamp.position.set(x * 0.9, 0.94, -2.205);
     group.add(lamp);
 
     const ledAccent = new THREE.Mesh(
-      new THREE.BoxGeometry(0.34, 0.035, 0.035),
-      new THREE.MeshBasicMaterial({ color: 0x54eaff })
+      new THREE.BoxGeometry(lampWidth * 0.78, 0.035, 0.035),
+      new THREE.MeshBasicMaterial({ color: ledColors[model] ?? 0x54eaff })
     );
     ledAccent.position.set(x * 0.9, 0.855, -2.21);
     group.add(ledAccent);
