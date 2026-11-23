@@ -334,6 +334,37 @@ function makeCar(color: number, model: number) {
       1.06
     );
   }
+  // Model-specific side air intakes: larger openings and more louvers on higher-tier cars.
+  const sideVentLengths = [0.34, 0.42, 0.5, 0.58, 0.66];
+  const sideVentHeights = [0.18, 0.2, 0.22, 0.24, 0.26];
+  const sideVentLouverCounts = [2, 2, 3, 3, 4];
+  const sideVentColors = [0x35e5ff, 0xffd044, 0xb58aff, 0xff526d, 0xf4f7ff];
+  for (const side of [-1, 1]) {
+    const ventLength = sideVentLengths[model] ?? 0.5;
+    const ventHeight = sideVentHeights[model] ?? 0.22;
+    const vent = new THREE.Mesh(
+      new THREE.BoxGeometry(0.055, ventHeight, ventLength),
+      new THREE.MeshToonMaterial({ color: 0x101722 })
+    );
+    vent.position.set(side * 1.115, 0.78, 0.48);
+    group.add(vent);
+    const ventAccent = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.025, ventLength * 0.82),
+      new THREE.MeshBasicMaterial({ color: sideVentColors[model] ?? 0xffffff })
+    );
+    ventAccent.position.set(side * 1.15, 0.78 + ventHeight * 0.42, 0.48);
+    group.add(ventAccent);
+    const louverCount = sideVentLouverCounts[model] ?? 3;
+    for (let louver = 0; louver < louverCount; louver++) {
+      const slat = new THREE.Mesh(
+        new THREE.BoxGeometry(0.028, 0.025, ventLength * 0.72),
+        new THREE.MeshStandardMaterial({ color: 0x66717e, metalness: 0.55, roughness: 0.42 })
+      );
+      slat.position.set(side * 1.153, 0.78 - ventHeight * 0.28 + louver * (ventHeight * 0.22), 0.48);
+      group.add(slat);
+    }
+  }
+
   // A distinct side graphic gives every garage car its own visual identity.
   const sideAccentColors = [0x35e5ff, 0xffd044, 0xb58aff, 0xff526d, 0xf4f7ff];
   const sideAccent = new THREE.MeshBasicMaterial({ color: sideAccentColors[model] ?? 0x35e5ff });
