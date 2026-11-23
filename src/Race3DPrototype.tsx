@@ -81,6 +81,10 @@ function makeCar(color: number, model: number) {
   bodyGeometry.translate(0, 0, -0.31);
   bodyGeometry.rotateX(Math.PI / 2);
   bodyGeometry.computeVertexNormals();
+  // Subtle model-specific body proportions create five distinct silhouettes.
+  const bodyWidthScales = [0.94, 0.98, 1.02, 1.06, 1.1];
+  const bodyLengthScales = [0.96, 1.02, 1.06, 1.1, 1.14];
+  bodyGeometry.scale(bodyWidthScales[model] ?? 1, 1, bodyLengthScales[model] ?? 1);
   const bodyOutline = new THREE.Mesh(bodyGeometry, new THREE.MeshBasicMaterial({
     color: 0x10131b, side: THREE.BackSide
   }));
